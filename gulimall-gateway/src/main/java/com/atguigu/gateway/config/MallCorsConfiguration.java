@@ -16,10 +16,10 @@ public class MallCorsConfiguration {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
 
         //1.配置跨域
-        corsConfiguration.addAllowedHeader("*");    //允许哪些请求头进行跨域
-        corsConfiguration.addAllowedMethod("*");    //允许哪些请求方式进行跨域
-        corsConfiguration.addAllowedOrigin("*");    //允许哪些请求来源进行跨域
-        corsConfiguration.setAllowCredentials(true);//是否允许携带cookie进行跨域
+        corsConfiguration.addAllowedHeader("*");        //允许哪些请求头进行跨域
+        corsConfiguration.addAllowedMethod("*");        //允许哪些请求方式进行跨域
+        corsConfiguration.addAllowedOrigin("*");        //允许哪些请求来源进行跨域
+        corsConfiguration.setAllowCredentials(true);    //是否允许携带cookie进行跨域
 
         //注册跨域配置
         configurationSource.registerCorsConfiguration("/**",corsConfiguration);
