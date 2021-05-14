@@ -2,10 +2,14 @@ package com.atguigu.gulimall.product.controller;
 
 import com.atguigu.common.utils.PageUtils;
 import com.atguigu.common.utils.R;
+import com.atguigu.common.valid.AddGroup;
+import com.atguigu.common.valid.UpdateGroup;
+import com.atguigu.common.valid.UpdateStatusGroup;
 import com.atguigu.gulimall.product.entity.BrandEntity;
 import com.atguigu.gulimall.product.service.BrandService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -56,7 +60,7 @@ public class BrandController {
      */
     @RequestMapping("/save")
     //@RequiresPermissions("product:brand:save")
-    public R save(@Valid @RequestBody BrandEntity brand) {
+    public R save(@Validated({AddGroup.class}) @RequestBody BrandEntity brand) {
 //        if (result.hasErrors()) {
 //            //1.获取效验的错误结果
 //            Map<String,String> map = new HashMap<>();
@@ -80,7 +84,15 @@ public class BrandController {
      */
     @RequestMapping("/update")
     //@RequiresPermissions("product:brand:update")
-    public R update(@RequestBody BrandEntity brand) {
+    public R updateDetail(@Validated({UpdateGroup.class}) @RequestBody BrandEntity brand) {
+        brandService.updateDetail(brand);
+
+        return R.ok();
+    }
+
+    @RequestMapping("/update/status")
+    //@RequiresPermissions("product:brand:update")
+    public R updateStatus(@Validated({UpdateStatusGroup.class}) @RequestBody BrandEntity brand) {
         brandService.updateById(brand);
 
         return R.ok();

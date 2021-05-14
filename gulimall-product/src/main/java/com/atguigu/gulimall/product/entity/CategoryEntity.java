@@ -4,12 +4,11 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.Data;
 
 import java.io.Serializable;
-import java.util.Date;
 import java.util.List;
-
-import lombok.Data;
 
 /**
  * 商品三级分类
@@ -27,6 +26,7 @@ public class CategoryEntity implements Serializable {
 	 * 当前菜单的所有子分类
 	 */
 	@TableField(exist = false)
+	@JsonInclude(JsonInclude.Include.NON_EMPTY)
 	private List<CategoryEntity> children;
 
 	/**
