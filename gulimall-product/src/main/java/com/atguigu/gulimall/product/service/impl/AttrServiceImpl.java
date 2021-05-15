@@ -1,35 +1,35 @@
 package com.atguigu.gulimall.product.service.impl;
 
 import com.atguigu.common.constant.ProductConstant;
+import com.atguigu.common.utils.PageUtils;
+import com.atguigu.common.utils.Query;
 import com.atguigu.gulimall.product.dao.AttrAttrgroupRelationDao;
+import com.atguigu.gulimall.product.dao.AttrDao;
 import com.atguigu.gulimall.product.dao.AttrGroupDao;
 import com.atguigu.gulimall.product.dao.CategoryDao;
 import com.atguigu.gulimall.product.entity.AttrAttrgroupRelationEntity;
+import com.atguigu.gulimall.product.entity.AttrEntity;
 import com.atguigu.gulimall.product.entity.AttrGroupEntity;
 import com.atguigu.gulimall.product.entity.CategoryEntity;
+import com.atguigu.gulimall.product.service.AttrService;
 import com.atguigu.gulimall.product.service.CategoryService;
+import com.atguigu.gulimall.product.vo.AttrGroupRelationVo;
 import com.atguigu.gulimall.product.vo.AttrRespVo;
 import com.atguigu.gulimall.product.vo.AttrVo;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.atguigu.common.utils.PageUtils;
-import com.atguigu.common.utils.Query;
-
-import com.atguigu.gulimall.product.dao.AttrDao;
-import com.atguigu.gulimall.product.entity.AttrEntity;
-import com.atguigu.gulimall.product.service.AttrService;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 
 @Service("attrService")
@@ -175,6 +175,38 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
             }
         }
 
+    }
+
+    /**
+     * 根据分组id查找关联的所有属性
+     * @param attrgroupId
+     * @return
+     */
+    @Override
+    public List<AttrEntity> getRelationAttr(String attrgroupId) {
+        List<AttrAttrgroupRelationEntity> attrGroupId = attrAttrgroupRelationDao.selectList(new QueryWrapper<AttrAttrgroupRelationEntity>()
+                .eq("attr_group_id", attrgroupId));
+        List<Long> attrIds = attrGroupId.stream().map((attr) -> {
+            return attr.getAttrId();
+        }).collect(Collectors.toList());
+
+        List<AttrEntity> entities = baseMapper.selectBatchIds(attrIds);
+
+        return entities;
+    }
+
+    /**
+     * 批量移除关联信息
+     * @param vos
+     */
+    @Override
+    public void deleteRelation(AttrGroupRelationVo[] vos) {
+        List<AttrAttrgroupRelationEntity> entities = Arrays.asList(vos).stream().map((item) -> {
+            AttrAttrgroupRelationEntity relationEntity = new AttrAttrgroupRelationEntity();
+            BeanUtils.copyProperties(item, relationEntity);
+            return relationEntity;
+        }).collect(Collectors.toList());
+        attrAttrgroupRelationDao.deleteBatchRelation(entities);
     }
 
 }
