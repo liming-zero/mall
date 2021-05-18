@@ -30,7 +30,7 @@ public class SkuInfoEntity implements Serializable {
 	 */
 	private Long spuId;
 	/**
-	 * sku名称
+	 * sku名称...
 	 */
 	private String skuName;
 	/**
@@ -50,15 +50,15 @@ public class SkuInfoEntity implements Serializable {
 	 */
 	private String skuDefaultImg;
 	/**
-	 * 标题
+	 * 标题...
 	 */
 	private String skuTitle;
 	/**
-	 * 副标题
+	 * 副标题...
 	 */
 	private String skuSubtitle;
 	/**
-	 * 价格
+	 * 价格...
 	 */
 	private BigDecimal price;
 	/**

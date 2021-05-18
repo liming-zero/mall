@@ -3,31 +3,21 @@
  */
 package com.atguigu.gulimall.product.vo.publishvo;
 
+import lombok.Data;
+
+import java.math.BigDecimal;
+
 /**
  * Auto-generated: 2021-05-16 23:18:20
  *
  * @author bejson.com (i@bejson.com)
  * @website http://www.bejson.com/java2pojo/
  */
+@Data
 public class Bounds {
 
-    private int buyBounds;
-    private int growBounds;
+    private BigDecimal buyBounds;   //成长积分
+    private BigDecimal growBounds;  //购物积分
 
-    public void setBuyBounds(int buyBounds) {
-        this.buyBounds = buyBounds;
-    }
-
-    public int getBuyBounds() {
-        return buyBounds;
-    }
-
-    public void setGrowBounds(int growBounds) {
-        this.growBounds = growBounds;
-    }
-
-    public int getGrowBounds() {
-        return growBounds;
-    }
 
 }

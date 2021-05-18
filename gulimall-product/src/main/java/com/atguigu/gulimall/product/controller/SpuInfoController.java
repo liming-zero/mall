@@ -32,7 +32,7 @@ public class SpuInfoController {
     @RequestMapping("/list")
     //@RequiresPermissions("product:spuinfo:list")
     public R list(@RequestParam Map<String, Object> params){
-        PageUtils page = spuInfoService.queryPage(params);
+        PageUtils page = spuInfoService.queryPageCondition(params);
 
         return R.ok().put("page", page);
     }
@@ -52,10 +52,11 @@ public class SpuInfoController {
     /**
      * 保存
      */
-    @RequestMapping("/save")
+    @PostMapping("/save")
     //@RequiresPermissions("product:spuinfo:save")
     public R save(@RequestBody SpuSaveVo vo){
 		//spuInfoService.save(spuInfo);
+        spuInfoService.saveSpuInfo(vo);
 
         return R.ok();
     }
