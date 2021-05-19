@@ -26,10 +26,17 @@ spring:
           filters:    #路径重写
             - RewritePath=/api/thirdparty/(?<segment>/?.*), /$\{segment}
 
-        - id: third_party_route
+        - id: gulimall-member
           uri: lb://gulimall-member #负载均衡的服务名
           predicates: #断言
             - Path=/api/member/**
+          filters: #路径重写
+            - RewritePath=/api/(?<segment>/?.*), /$\{segment}
+
+        - id: ware_route
+          uri: lb://gulimall-ware #负载均衡的服务名
+          predicates: #断言
+            - Path=/api/ware/**
           filters: #路径重写
             - RewritePath=/api/(?<segment>/?.*), /$\{segment}
 
