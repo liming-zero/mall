@@ -16,7 +16,8 @@ package com.atguigu.common.exception;
 
 public enum BizCodeEnum {
     UNKNOWN_EXCEPTION(10001,"系统未知异常"),
-    VALIDATE_EXCEPTION(10001,"参数格式效验失败");
+    VALIDATE_EXCEPTION(10001,"参数格式效验失败"),
+    PRODUCT_UP_EXCEPTION(11000,"商品上架异常");
 
     private int code;
     private String msg;

@@ -28,7 +28,6 @@ hs_err_pid*
 **/.mvn
 **/target/
 
-
 ### STS ###
 .apt_generated
 .classpath

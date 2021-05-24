@@ -36,5 +36,7 @@ public interface SpuInfoService extends IService<SpuInfoEntity> {
     void saveSpuBoundsFeign(SpuSaveVo vo, Long id);
 
     PageUtils queryPageCondition(Map<String, Object> params);
+
+    void spuUp(Long spuId);
 }
 
