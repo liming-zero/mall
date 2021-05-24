@@ -1,6 +1,5 @@
-package com.atguigu.gulimall.product.controller;
+package com.atguigu.gulimall.product.app;
 
-import com.atguigu.common.utils.PageUtils;
 import com.atguigu.common.utils.R;
 import com.atguigu.gulimall.product.entity.CategoryEntity;
 import com.atguigu.gulimall.product.service.CategoryService;
@@ -9,8 +8,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-
 
 
 /**

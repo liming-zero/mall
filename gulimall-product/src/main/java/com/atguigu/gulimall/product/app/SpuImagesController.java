@@ -1,4 +1,4 @@
-package com.atguigu.gulimall.product.controller;
+package com.atguigu.gulimall.product.app;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -10,33 +10,33 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.atguigu.gulimall.product.entity.SkuSaleAttrValueEntity;
-import com.atguigu.gulimall.product.service.SkuSaleAttrValueService;
+import com.atguigu.gulimall.product.entity.SpuImagesEntity;
+import com.atguigu.gulimall.product.service.SpuImagesService;
 import com.atguigu.common.utils.PageUtils;
 import com.atguigu.common.utils.R;
 
 
 
 /**
- * sku销售属性&值
+ * spu图片
  *
  * @author liming-zero
  * @email limingzero@outlook.com
  * @date 2021-05-03 14:34:32
  */
 @RestController
-@RequestMapping("product/skusaleattrvalue")
-public class SkuSaleAttrValueController {
+@RequestMapping("product/spuimages")
+public class SpuImagesController {
     @Autowired
-    private SkuSaleAttrValueService skuSaleAttrValueService;
+    private SpuImagesService spuImagesService;
 
     /**
      * 列表
      */
     @RequestMapping("/list")
-    //@RequiresPermissions("product:skusaleattrvalue:list")
+    //@RequiresPermissions("product:spuimages:list")
     public R list(@RequestParam Map<String, Object> params){
-        PageUtils page = skuSaleAttrValueService.queryPage(params);
+        PageUtils page = spuImagesService.queryPage(params);
 
         return R.ok().put("page", page);
     }
@@ -46,20 +46,20 @@ public class SkuSaleAttrValueController {
      * 信息
      */
     @RequestMapping("/info/{id}")
-    //@RequiresPermissions("product:skusaleattrvalue:info")
+    //@RequiresPermissions("product:spuimages:info")
     public R info(@PathVariable("id") Long id){
-		SkuSaleAttrValueEntity skuSaleAttrValue = skuSaleAttrValueService.getById(id);
+		SpuImagesEntity spuImages = spuImagesService.getById(id);
 
-        return R.ok().put("skuSaleAttrValue", skuSaleAttrValue);
+        return R.ok().put("spuImages", spuImages);
     }
 
     /**
      * 保存
      */
     @RequestMapping("/save")
-    //@RequiresPermissions("product:skusaleattrvalue:save")
-    public R save(@RequestBody SkuSaleAttrValueEntity skuSaleAttrValue){
-		skuSaleAttrValueService.save(skuSaleAttrValue);
+    //@RequiresPermissions("product:spuimages:save")
+    public R save(@RequestBody SpuImagesEntity spuImages){
+		spuImagesService.save(spuImages);
 
         return R.ok();
     }
@@ -68,9 +68,9 @@ public class SkuSaleAttrValueController {
      * 修改
      */
     @RequestMapping("/update")
-    //@RequiresPermissions("product:skusaleattrvalue:update")
-    public R update(@RequestBody SkuSaleAttrValueEntity skuSaleAttrValue){
-		skuSaleAttrValueService.updateById(skuSaleAttrValue);
+    //@RequiresPermissions("product:spuimages:update")
+    public R update(@RequestBody SpuImagesEntity spuImages){
+		spuImagesService.updateById(spuImages);
 
         return R.ok();
     }
@@ -79,9 +79,9 @@ public class SkuSaleAttrValueController {
      * 删除
      */
     @RequestMapping("/delete")
-    //@RequiresPermissions("product:skusaleattrvalue:delete")
+    //@RequiresPermissions("product:spuimages:delete")
     public R delete(@RequestBody Long[] ids){
-		skuSaleAttrValueService.removeByIds(Arrays.asList(ids));
+		spuImagesService.removeByIds(Arrays.asList(ids));
 
         return R.ok();
     }
