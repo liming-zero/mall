@@ -20,7 +20,7 @@ public class IndexController {
 
     @GetMapping({"/","index.html"})
     public String index(Model model){
-        //TODO 1.查询所有的以及分类
+        //TODO 1.查询所有的一级分类
         List<CategoryEntity> categoryEntities = categoryService.getLevel1Categorys();
         model.addAttribute("categorys",categoryEntities);
         return "index";
