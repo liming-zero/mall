@@ -16,8 +16,12 @@ spring:
     date-format: yyyy-MM-dd HH:mm:ss
 
   thymeleaf:
-    cache: false
+    cache: true
     suffix: .html
+
+  redis:
+    host: 192.168.247.130
+    port: 6379
 
 mybatis-plus:
   mapper-locations: classpath:/mapper/**/*.xml
@@ -31,9 +35,9 @@ server:
   port: 10000
 
 #配置日志级别
-#logging:
-#  level:
-#    com.atguigu.gulimall: debug
+logging:
+  level:
+    com.atguigu.gulimall: error
 
 alibaba:
   cloud:

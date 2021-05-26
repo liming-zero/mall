@@ -33,6 +33,11 @@ import org.springframework.context.annotation.ComponentScan;
  *  2）、静态资源都放在static文件夹下就可以按照路径直接访问
  *  3）、页面放在templates下，直接访问
  *      SpringBoot,访问项目的时候，默认会找index
+ *
+ * 6.整合redis
+ *  1）、引入data-redis-starter依赖
+ *  2）、配置文件配置redis的host等信息
+ *  3）、使用springboot自动配置好的StringRedisTemplate来操作redis
  */
 @EnableFeignClients(basePackages = {"com.atguigu.gulimall.product.feign"})
 @ComponentScan("com.atguigu")
