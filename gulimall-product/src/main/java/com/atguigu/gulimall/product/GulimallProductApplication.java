@@ -38,6 +38,10 @@ import org.springframework.context.annotation.ComponentScan;
  *  1）、引入data-redis-starter依赖
  *  2）、配置文件配置redis的host等信息
  *  3）、使用springboot自动配置好的StringRedisTemplate来操作redis
+ *
+ * 7.整合redisson作为分布式锁等功能框架
+ *  1）、引入redisson依赖
+ *  2）、配置redisson
  */
 @EnableFeignClients(basePackages = {"com.atguigu.gulimall.product.feign"})
 @ComponentScan("com.atguigu")
