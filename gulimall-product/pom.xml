@@ -25,6 +25,12 @@
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
 
+        <!--引入SpringCache-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-cache</artifactId>
+        </dependency>
+
         <!--引入redis-->
         <dependency>
             <groupId>org.springframework.boot</groupId>

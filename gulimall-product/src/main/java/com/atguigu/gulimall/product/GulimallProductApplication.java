@@ -3,6 +3,7 @@ package com.atguigu.gulimall.product;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.ComponentScan;
@@ -42,7 +43,29 @@ import org.springframework.context.annotation.ComponentScan;
  * 7.整合redisson作为分布式锁等功能框架
  *  1）、引入redisson依赖
  *  2）、配置redisson
+ *
+ * 8.整合SpringCache简化缓存开发
+ *  1）、引入依赖spring-boot-starter-cache、spring-boot-starter-data-redis
+ *  2）、写配置类
+ *      1）、自动配置了哪些？
+ *      CacheAutoConfiguration会导入RedisCacheConfiguration
+ *      自动配好了缓存管理器RedisCacheManager
+ *      2）、配置使用redis作为缓存
+ *  3）、测试使用缓存
+ *      @Cacheable 触发缓存填充，数据保存到缓存的操作
+ *      @CacheEvict 触发逐出缓存。将数据从缓存删除的操作
+ *      @CachePut 更新缓存，而不会干扰方法的执行
+ *      @Caching 重新组合要在一个方法上应用的多个缓存操作，组合以上多个操作
+ *      @CacheConfig 在类级别共享一些与缓存相关的常见配置
+ *      1）、开启缓存功能  @EnableCaching
+ *      2)、只需要使用注解就能完成缓存操作
+ *  4）、原理：
+ *      CacheAutoConfiguration 导入-> RedisCacheConfiguration : 自动配置了RedisCacheManager
+ *      -> 初始化所有缓存 -> 每个缓存决定使用什么配置 -> 如果RedisCacheConfiguration有就用已有的，没有就用默认配置
+ *      -> 想改缓存的配置，只需要给容器中放一个RedisCacheConfiguration即可
+ *      -> 就会应用到当前RedisCacheManager管理的所有缓存分区中
  */
+@EnableCaching
 @EnableFeignClients(basePackages = {"com.atguigu.gulimall.product.feign"})
 @ComponentScan("com.atguigu")
 @EnableDiscoveryClient

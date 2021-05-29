@@ -4,7 +4,13 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.atguigu.gulimall.product.service.CategoryBrandRelationService;
 import com.atguigu.gulimall.product.vo.frontvo.Catalog2Vo;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
@@ -33,6 +39,8 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
     private CategoryBrandRelationService categoryBrandRelationService;
     @Autowired
     private StringRedisTemplate redisTemplate;
+    @Autowired
+    private RedissonClient redissonClient;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -118,15 +126,43 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
     /**
      * 级联更新所有关联的数据
      *
-     * @param category
+     * @CacheEvict :失效模式
+     * category: 存在哪个区域中
+     * 1.@Caching 同时进行多种缓存操作
+     * 2.指定删除某个分区下的所有数据 allEntries = true
+     * 3.存储统一类型的数据，都可以指定成同一个分区。分区名默认就是缓存的前缀。
      */
+//    @Caching(evict = {
+//            @CacheEvict(value = {"category"}, key = "'getLevel1Categorys'"),
+//            @CacheEvict(value = {"category"}, key = "'getCatalogJson'")
+//    })
+    @CacheEvict(value = {"category"}, allEntries = true)
+//    @CachePut  //双写模式使用此注解
     @Transactional
     @Override
     public void updateCascade(CategoryEntity category) {
         baseMapper.updateById(category);
         categoryBrandRelationService.updateCategory(category.getCatId(), category.getName());
+        //同时修改缓存中的数据
+        //redis.del("catalogJSON"); 等待下次查询主动更新
     }
 
+    /**
+     * 1.每一个需要缓存的数据我们都要指定要放到哪个名字的缓存。【缓存的分区(按照业务类型分)】
+     * 2.@Cacheable ({"category"})
+     * 代表当前方法的结果需要缓存，如果缓存中有，方法不用调用。如果缓存中没有，会调用方法，最后将方法的结果放入缓存
+     * 3.默认行为
+     * 1）、如果缓存中有，方法不用调用
+     * 2）、key默认自动生成的：缓存的名字::SimpleKey [] 自主生成的key值
+     * 3）、缓存的value的值，默认使用jdk序列化机制，将序列化后的数据存到redis
+     * 4）、默认ttl时间 -1
+     * 4.自定义：
+     * 1）、指定生成的缓存使用的key：  key属性指定，接收一个SpEL表达式 key = "#root.method.name":指定方法名作为key
+     * 2）、指定缓存的数据的存活时间：配置文件中修改TTL
+     * 3）、将数据保存为json格式
+     */
+    //@Cacheable(value = {"category"},key = "'Level1Categorys'")
+    @Cacheable(value = {"category"}, key = "#root.method.name")
     @Override
     public List<CategoryEntity> getLevel1Categorys() {
         List<CategoryEntity> categoryEntities = baseMapper.selectList(new QueryWrapper<CategoryEntity>().eq("parent_cid", 0));
@@ -143,8 +179,41 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
      * 1）、升级lettuce客户端  2）、切换使用Jedis客户端
      * 2）、lettuce、Jedis都是操作redis的底层客户端，Spring再次封装redisTemplate;
      */
+
+    @Cacheable(value = "category",key = "#root.methodName")
     @Override
     public Map<String, List<Catalog2Vo>> getCatalogJson() {
+        List<CategoryEntity> selectList = baseMapper.selectList(null);
+
+        //1.查出所有1级分类
+        List<CategoryEntity> level1Categorys = getParent_cid(selectList, 0L);
+        //2.封装数据
+        Map<String, List<Catalog2Vo>> parentCid = level1Categorys.stream().collect(Collectors.toMap(k -> k.getCatId().toString(), v -> {
+            //1.查出每一个一级分类的二级分类
+            List<CategoryEntity> categoryLevel2List = getParent_cid(selectList, v.getParentCid());
+            //2.封装上面的结果
+            List<Catalog2Vo> catelog2Vos = null;
+            if (categoryLevel2List != null) {
+                catelog2Vos = categoryLevel2List.stream().map((level2) -> {
+                    Catalog2Vo catelog2Vo = new Catalog2Vo(v.getCatId().toString(), null, level2.getCatId().toString(), level2.getName());
+                    //1.找当前二级分类的三级分类封装成vo
+                    List<CategoryEntity> categoryLevel3List = getParent_cid(selectList, level2.getParentCid());
+                    if (categoryLevel3List != null) {
+                        List<Catalog2Vo.Catalog3VO> catalog3VOS = categoryLevel3List.stream().map((level3) -> {
+                            Catalog2Vo.Catalog3VO catalog3VO = new Catalog2Vo.Catalog3VO(level2.getCatId().toString(), level3.getCatId().toString(), level3.getName());
+                            return catalog3VO;
+                        }).collect(Collectors.toList());
+                        catelog2Vo.setCatalog3List(catalog3VOS);
+                    }
+                    return catelog2Vo;
+                }).collect(Collectors.toList());
+            }
+            return catelog2Vos;
+        }));
+        return parentCid;
+    }
+
+    public Map<String, List<Catalog2Vo>> getCatalogJson2() {
         /**
          * 1.空结果缓存，解决缓存穿透
          * 2.设置过期时间(加随机值)：解决缓存雪崩
@@ -167,26 +236,50 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
     }
 
     /**
+     * 使用redisson的分布式锁
+     * 缓存里面的数据如何和数据库保持一致？
+     * 缓存数据一致性：
+     * 1）、双写模式
+     * 2）、失效模式
+     */
+    public Map<String, List<Catalog2Vo>> getCatalogJsonFromDBWithRedissonLock() {
+        //锁的名字。锁的粒度，越细越快。
+        //锁的粒度，具体缓存的是某个数据：11-号商品：product-11-lock    product-12-lock
+        RLock lock = redissonClient.getLock("catalogJSON-lock");
+        lock.lock();
+        //1.占分布式锁，去redis占坑
+        System.out.println("获取分布式锁成功..........................");
+
+        try {
+            //执行业务
+            Map<String, List<Catalog2Vo>> dataFromDB = getDataFromDB();
+            return dataFromDB;
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    /**
      * 使用redis的分布式锁
      */
     public Map<String, List<Catalog2Vo>> getCatalogJsonFromDBWithRedisLock() {
         String uuid = UUID.randomUUID().toString();
         //1.占分布式锁，去redis占坑
-        Boolean lock = redisTemplate.opsForValue().setIfAbsent("lock", uuid,300,TimeUnit.SECONDS);
-        if (lock){
+        Boolean lock = redisTemplate.opsForValue().setIfAbsent("lock", uuid, 300, TimeUnit.SECONDS);
+        if (lock) {
             System.out.println("获取分布式锁成功..........................");
             //1.加锁成功...执行业务
             //2.设置锁的过期时间，避免造成死锁现象 (设置过期时间，必须和加锁是同步的，原子性)
             //redisTemplate.expire("lock",30,TimeUnit.SECONDS);
-            try{
+            try {
                 Map<String, List<Catalog2Vo>> dataFromDB = getDataFromDB();
                 return dataFromDB;
-            }finally {
+            } finally {
                 //获取值对比+对比成功删除=原子操作 lua脚本解锁
                 String script = "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end";
                 //删除锁，1删除成功，0删除失败
                 Long deleteLock = redisTemplate.execute(new DefaultRedisScript<Long>(script, Long.class), Arrays.asList("lock"), uuid);
-                if (deleteLock == 1){
+                if (deleteLock == 1) {
                     System.out.println("删除分布式锁成功..........................");
                 }
             }
@@ -196,7 +289,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
 //                redisTemplate.delete("lock"); //删除锁
 //            }
 
-        }else{
+        } else {
             //加锁失败...重试。synchronized()，休眠100毫秒重试
             System.out.println("获取分布式锁失败，等待重试..................");
             try {
@@ -208,6 +301,9 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         }
     }
 
+    /**
+     * 使用本地锁
+     */
     public Map<String, List<Catalog2Vo>> getCatalogJsonFromDBWithLocalLock() {
         /**
          * 只要是同一把锁，就能锁住需要这个锁的所有线程

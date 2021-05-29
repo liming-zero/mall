@@ -3,6 +3,9 @@ package com.atguigu.gulimall.product;
 import com.atguigu.gulimall.product.service.CategoryService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
+import org.redisson.api.RCountDownLatch;
+import org.redisson.api.RLock;
+import org.redisson.api.RReadWriteLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -11,6 +14,7 @@ import org.springframework.data.redis.core.ValueOperations;
 
 import java.util.Arrays;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @SpringBootTest
@@ -23,9 +27,47 @@ class GulimallProductApplicationTests {
     @Autowired
     private RedissonClient redissonClient;
 
+    /**
+     * 测试分布式闭锁
+     */
+    @Test
+    void testLockDoor(){
+        RCountDownLatch door = redissonClient.getCountDownLatch("door");
+        door.trySetCount(5);
+        door.countDown();//计数减一
+        try {
+            door.await();   //等待闭锁都完成
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
     @Test
     void testRedisson() {
         System.out.println(redissonClient);
+        RLock lock = redissonClient.getLock("lock");
+        /**
+         * 1.如果我们指定了锁的超时时间，就发送给redis执行脚本，进行占锁，默认超时就是我们指定的时间。
+         * 2.如果未指定锁的超时时间，就使用30 * 1000【LockWatchdogTimeout看门狗的默认时间】
+         *   只要占锁成功，就会启动一个定时任务【重新给锁设置过期时间，新的过期时间就是看门狗的默认时间】,每隔10s就会再次续期。续成30s
+         *   internalLockLeaseTime【看门狗时间】 / 3, 10s
+         */
+        lock.lock(10, TimeUnit.SECONDS);    //10秒自动解锁，自动解锁时间一定要大于业务的执行时间，因为它不会自动续期
+        try {
+            System.out.println("，加锁成功，执行业务");
+            Thread.sleep(30000);
+        }catch (Exception e){
+            e.printStackTrace();
+        }finally {
+            lock.unlock();//解锁
+            System.out.println("解锁成功");
+        }
+
+        //TODO 读写锁(保证一定能获取到最新数据，写锁是一个排他锁(互斥锁)。读锁是一个共享锁) 写锁执行业务未成功，读锁读不到数据
+        //写 + 读 ： 等待写锁释放    写 + 写 ： 阻塞方式    读 + 写 ： 等待读锁释放     读 + 读 ：相当于无锁，并发读，只会在redis记录好，所有当前的读锁，他们都会同时加锁成功
+        //只要有写的存在，都必须等待
+        RReadWriteLock writeLock = redissonClient.getReadWriteLock("wr-lock");
+        writeLock.writeLock();  //加写锁，读锁是readLock
     }
 
     @Test
