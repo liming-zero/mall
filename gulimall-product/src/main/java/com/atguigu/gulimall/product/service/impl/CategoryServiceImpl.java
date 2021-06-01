@@ -152,17 +152,33 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
      * 2.@Cacheable ({"category"})
      * 代表当前方法的结果需要缓存，如果缓存中有，方法不用调用。如果缓存中没有，会调用方法，最后将方法的结果放入缓存
      * 3.默认行为
-     * 1）、如果缓存中有，方法不用调用
-     * 2）、key默认自动生成的：缓存的名字::SimpleKey [] 自主生成的key值
-     * 3）、缓存的value的值，默认使用jdk序列化机制，将序列化后的数据存到redis
-     * 4）、默认ttl时间 -1
-     * 4.自定义：
-     * 1）、指定生成的缓存使用的key：  key属性指定，接收一个SpEL表达式 key = "#root.method.name":指定方法名作为key
-     * 2）、指定缓存的数据的存活时间：配置文件中修改TTL
-     * 3）、将数据保存为json格式
+     *      1）、如果缓存中有，方法不用调用
+     *      2）、key默认自动生成的：缓存的名字::SimpleKey [] 自主生成的key值
+     *      3）、缓存的value的值，默认使用jdk序列化机制，将序列化后的数据存到redis
+     *      4）、默认ttl时间 -1
+     * 4.自定义行为：
+     *      1）、指定生成的缓存使用的key：  key属性指定，接收一个SpEL表达式 key = "#root.method.name":指定方法名作为key
+     *      2）、指定缓存的数据的存活时间：配置文件中修改TTL
+     *      3）、将数据保存为json格式
+     * 5.SpringCache的不足：
+     *      1）、读模式：
+     *             * 缓存穿透：查询一个null数据。解决：缓存空数据，cache-null-values=true
+     *             * 缓存击穿：大量并发进来同时查询一个热点数据，但是此数据缓存正好过期。解决：加锁；？默认是无加锁的。
+     *               sync = true,此属性加本地锁synchronized，不是分布式锁，判断如果缓存中有数据则直接返回，如果没有则执行业务方法查询数据库。
+     *             * 缓存雪崩：缓存中大量key同一时间过期。解决：加随机过期时间。spring.cache.redis.time-to-live=360000
+     *      2）、写模式：(缓存数据要与数据库一致)
+     *             * 读写加锁。
+     *             * 引入canal，感知到MYSQL的更新去更新数据库。
+     *             * 读多写多，直接去数据库查询就行。
+     *      总结：
+     *          常规数据(读多写少，即时性，一致性要求不高的数据)，完全可以使用SpringCache；写模式(只要缓存的数据有过期时间就足够了)
+     *          特殊数据(要加缓存提升速度一致性等要求较高的数据)，特殊设计
+     *      原理：
+     *          CacheManager(RedisCacheManager) -> Cache -> Cache负责缓存的读写
+     *
      */
     //@Cacheable(value = {"category"},key = "'Level1Categorys'")
-    @Cacheable(value = {"category"}, key = "#root.method.name")
+    @Cacheable(value = {"category"}, key = "#root.method.name",sync = true)
     @Override
     public List<CategoryEntity> getLevel1Categorys() {
         List<CategoryEntity> categoryEntities = baseMapper.selectList(new QueryWrapper<CategoryEntity>().eq("parent_cid", 0));
@@ -190,14 +206,14 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         //2.封装数据
         Map<String, List<Catalog2Vo>> parentCid = level1Categorys.stream().collect(Collectors.toMap(k -> k.getCatId().toString(), v -> {
             //1.查出每一个一级分类的二级分类
-            List<CategoryEntity> categoryLevel2List = getParent_cid(selectList, v.getParentCid());
+            List<CategoryEntity> categoryLevel2List = getParent_cid(selectList, v.getCatId());
             //2.封装上面的结果
             List<Catalog2Vo> catelog2Vos = null;
             if (categoryLevel2List != null) {
                 catelog2Vos = categoryLevel2List.stream().map((level2) -> {
                     Catalog2Vo catelog2Vo = new Catalog2Vo(v.getCatId().toString(), null, level2.getCatId().toString(), level2.getName());
                     //1.找当前二级分类的三级分类封装成vo
-                    List<CategoryEntity> categoryLevel3List = getParent_cid(selectList, level2.getParentCid());
+                    List<CategoryEntity> categoryLevel3List = getParent_cid(selectList, level2.getCatId());
                     if (categoryLevel3List != null) {
                         List<Catalog2Vo.Catalog3VO> catalog3VOS = categoryLevel3List.stream().map((level3) -> {
                             Catalog2Vo.Catalog3VO catalog3VO = new Catalog2Vo.Catalog3VO(level2.getCatId().toString(), level3.getCatId().toString(), level3.getName());
@@ -368,8 +384,8 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         return parentCid;
     }
 
-    private List<CategoryEntity> getParent_cid(List<CategoryEntity> selectList, Long parent_cid) {
-        List<CategoryEntity> collect = selectList.stream().filter(item -> item.getParentCid() == parent_cid).collect(Collectors.toList());
+    private List<CategoryEntity> getParent_cid(List<CategoryEntity> selectList, Long id) {
+        List<CategoryEntity> collect = selectList.stream().filter(item -> item.getParentCid() == id).collect(Collectors.toList());
         return collect;
     }
 

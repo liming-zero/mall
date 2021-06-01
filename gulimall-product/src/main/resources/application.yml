@@ -16,7 +16,7 @@ spring:
     date-format: yyyy-MM-dd HH:mm:ss
 
   thymeleaf:
-    cache: true
+    cache: false
     suffix: .html
 
   redis:
