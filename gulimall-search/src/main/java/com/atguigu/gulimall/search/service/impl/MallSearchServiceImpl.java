@@ -40,7 +40,7 @@ import java.util.List;
 @Service
 public class MallSearchServiceImpl implements MallSearchService {
 
-    @Autowired
+    @Resource
     private RestHighLevelClient highLevelClient;
 
     /**
@@ -61,7 +61,7 @@ public class MallSearchServiceImpl implements MallSearchService {
         try {
             //2.执行检索请求
             SearchResponse response = highLevelClient.search(searchRequest, ElasticSerachConfig.COMMON_OPTIONS);
-            result = buildSearchResult(response,param);
+            result = buildSearchResult(response, param);
             //3.分析响应数据，封装成我们需要的格式
         } catch (IOException e) {
             e.printStackTrace();
@@ -75,17 +75,17 @@ public class MallSearchServiceImpl implements MallSearchService {
      * @param response
      * @return
      */
-    private SearchResult buildSearchResult(SearchResponse response,SearchParam param) {
+    private SearchResult buildSearchResult(SearchResponse response, SearchParam param) {
         SearchResult result = new SearchResult();
         //1.返回所有查询到的商品
         SearchHits hits = response.getHits();
         List<SkuEsModel> esModels = new ArrayList<>();
-        if (hits.getHits() !=null && hits.getHits().length > 0){
+        if (hits.getHits() != null && hits.getHits().length > 0) {
             for (SearchHit hit : hits.getHits()) {
                 String sourceAsString = hit.getSourceAsString();
                 SkuEsModel skuEsModel = JSON.parseObject(sourceAsString, SkuEsModel.class);
                 //封装高亮的属性
-                if (!StringUtils.isEmpty(param.getKeyword())){
+                if (!StringUtils.isEmpty(param.getKeyword())) {
                     HighlightField skuTitle = hit.getHighlightFields().get("skuTitle");
                     String highlight = skuTitle.getFragments()[0].string();
                     skuEsModel.setSkuTitle(highlight);
@@ -163,7 +163,12 @@ public class MallSearchServiceImpl implements MallSearchService {
         long total = hits.getTotalHits().value;
         result.setTotal(total);
         //总页码 总记录数/每页记录数
-        long totalPages = total % EsConstant.PRODUCT_PAGE_SIZE == 0 ? total % EsConstant.PRODUCT_PAGE_SIZE : total % EsConstant.PRODUCT_PAGE_SIZE + 1;
+        long totalPages = total % EsConstant.PRODUCT_PAGE_SIZE == 0 ? total / EsConstant.PRODUCT_PAGE_SIZE : (total / EsConstant.PRODUCT_PAGE_SIZE + 1);
+        List<Integer> pageNavs = new ArrayList<>();
+        for (int i = 1; i <= totalPages; i++) {
+            pageNavs.add(i);
+        }
+        result.setPageNavs(pageNavs);
         result.setTotalPages(totalPages);
         return result;
     }
@@ -197,29 +202,29 @@ public class MallSearchServiceImpl implements MallSearchService {
                 String[] s = attr.split("_");
                 String attrId = s[0];   //检索的属性id
                 String[] attrValues = s[1].split(":");  //这个属性检索用的值
-                boolQueryBuilder.must(QueryBuilders.termQuery("attrs.attrId",attrId));
-                boolQueryBuilder.must(QueryBuilders.termsQuery("attrs.attrValue",attrValues));
+                boolQueryBuilder.must(QueryBuilders.termQuery("attrs.attrId", attrId));
+                boolQueryBuilder.must(QueryBuilders.termsQuery("attrs.attrValue", attrValues));
                 //每一个属性必须都得生成一个nestedQuery查询
                 NestedQueryBuilder nestedQuery = QueryBuilders.nestedQuery("attrs", boolQueryBuilder, ScoreMode.None);
                 boolQuery.filter(nestedQuery);
             }
         }
 
-        if (param.getHasStock() != null){
+        if (param.getHasStock() != null) {
             boolQuery.filter(QueryBuilders.termQuery("hasStock", param.getHasStock() == 1));   //按照是否有库存查询
         }
-        if (!StringUtils.isEmpty(param.getSkuPrice())){         //按照价格区间进行检索
+        if (!StringUtils.isEmpty(param.getSkuPrice())) {         //按照价格区间进行检索
             RangeQueryBuilder rangeQuery = QueryBuilders.rangeQuery("skuPrice");
             String skuPrice = param.getSkuPrice();
             String[] s = skuPrice.split("_");
-            if (s.length == 2){
+            if (s.length == 2) {
                 //区间
                 rangeQuery.gte(s[0]).lte(s[1]);
-            }else if(s.length == 1){
-                if (param.getSkuPrice().startsWith("_")){ //_500 小于500
+            } else if (s.length == 1) {
+                if (param.getSkuPrice().startsWith("_")) { //_500 小于500
                     rangeQuery.lte(s[0]);
                 }
-                if (param.getSkuPrice().endsWith("_")){   //500_ 大于500
+                if (param.getSkuPrice().endsWith("_")) {   //500_ 大于500
                     rangeQuery.gte(s[0]);
                 }
             }
@@ -231,7 +236,7 @@ public class MallSearchServiceImpl implements MallSearchService {
 
         //2.========================排序，分页，高亮============================
         //2.1排序
-        if (!StringUtils.isEmpty(param.getSort())){
+        if (!StringUtils.isEmpty(param.getSort())) {
             /**
              * 排序条件
              * sort=saleCount_asc/desc
@@ -241,20 +246,18 @@ public class MallSearchServiceImpl implements MallSearchService {
             String sort = param.getSort();
             String[] s = sort.split("_");
             SortOrder order = s[1].equalsIgnoreCase("asc") ? SortOrder.ASC : SortOrder.DESC;
-            searchSourceBuilder.sort(s[0],order);
+            searchSourceBuilder.sort(s[0], order);
         }
 
         //2.2分页 pageSize:5
         //pageNum:1 from:0  size:5  [0,1,2,3,4]
         //pageNum:2 from:5  size:5
         //from = (pageNum-1) * pageSize 分页
-        if (param.getPageNum() != null){
-            searchSourceBuilder.from((param.getPageNum()-1) * EsConstant.PRODUCT_PAGE_SIZE);
-        }
+        searchSourceBuilder.from((param.getPageNum() - 1) * EsConstant.PRODUCT_PAGE_SIZE);
         searchSourceBuilder.size(EsConstant.PRODUCT_PAGE_SIZE);
 
         //2.3高亮
-        if (!StringUtils.isEmpty(param.getKeyword())){
+        if (!StringUtils.isEmpty(param.getKeyword())) {
             HighlightBuilder highlightBuilder = new HighlightBuilder();
             highlightBuilder.field("skuTitle");
             highlightBuilder.preTags("<b style='color:red'>");
@@ -281,7 +284,7 @@ public class MallSearchServiceImpl implements MallSearchService {
         //3.3属性聚合
         NestedAggregationBuilder attrAggNested = AggregationBuilders.nested("attr_agg", "attrs");
         //聚合出当前所有的attrId
-        TermsAggregationBuilder attrIdAgg = AggregationBuilders.terms("attrId_agg").field("attrs.attrId").size(1);
+        TermsAggregationBuilder attrIdAgg = AggregationBuilders.terms("attrId_agg").field("attrs.attrId").size(20);
         //attrId的下面还有两个子聚合
         attrIdAgg.subAggregation(AggregationBuilders.terms("attrName_agg").field("attrs.attrName").size(1));    //当前attrId对应的属性名
         attrIdAgg.subAggregation(AggregationBuilders.terms("attrValue_agg").field("attrs.attrValue").size(50)); //当前attrId对应的属性值

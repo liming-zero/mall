@@ -21,6 +21,11 @@ public class SearchResult {
     private Integer pageNum;
 
     /**
+     * 导航页
+     */
+    private List<Integer> pageNavs;
+
+    /**
      * 总记录数
      */
     private Long total;
