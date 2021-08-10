@@ -11,6 +11,8 @@ import java.util.List;
 @Data
 public class SearchParam {
 
+    private String _queryString;    //原生的所有查询条件
+
     private String keyword;     //页面传递过来的全文匹配关键字
     private Long catalog3Id;    //三级分类的id
 

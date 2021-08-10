@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 
@@ -40,6 +41,16 @@ public class BrandController {
         return R.ok().put("page", page);
     }
 
+    /**
+     * 远程调用多个品牌信息
+     */
+    @RequestMapping("/infos")
+    //@RequiresPermissions("product:brand:info")
+    public R info(@RequestParam("brandIds") List<Long> brandIds) {
+        List<BrandEntity> brand = brandService.getByIds(brandIds);
+
+        return R.ok().put("brand", brand);
+    }
 
     /**
      * 信息
