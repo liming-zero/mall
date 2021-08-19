@@ -1,9 +1,8 @@
 package com.atguigu.gulimall.search.thread;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.ThreadPoolExecutor;
+import lombok.SneakyThrows;
+
+import java.util.concurrent.*;
 
 public class ThreadTest {
 
@@ -28,12 +27,19 @@ public class ThreadTest {
      *          executorService.execute(new Runnable01());
      *          1、创建：
      *              1）、Executors
-     *              2）、
+     *              2）、new THreadPoolExecutor
+     *          2、开发中为什么使用线程池？
+     *              降低资源的消耗。（降低线程创建和销毁带来的损耗）
+     *              提高响应速度。（当有新任务时使用等待分配任务的线程池，无需创建新的线程就能执行）
+     *              提高线程的可管理性。（线程池会根据当前系统特点对池内的线程进行优化处理，减少创建和销毁线程带来的系统开销）
+     *      区别：
+     *          1、2不能得到返回值。3可以获取返回值
+     *          1、2、3都不能控制资源
+     *          4 可以控制资源，性能稳定
      *
-     *  区别：
-     *      1、2不能得到返回值。3可以获取返回值
-     *      1、2、3都不能控制资源
-     *      4 可以控制资源，性能稳定
+     *  CompletableFuture异步编排：
+     *      CompletableFuture<T> implement Future<T>,CompletionStage<T>
+     *      通过线程池性能稳定，也可以获取执行结果，并捕获异常。但是，在业务复杂情况下，一个异步调用可能会依赖于另一个异步调用的执行结果。
      */
 
     //我们以后在业务代码里面，以上三种启动线程的方式都不用，因为特别消耗资源。【将所有的多线程异步任务都交给线程池进行】
@@ -42,7 +48,162 @@ public class ThreadTest {
     //当前系统中池只有一俩个，每个异步任务，提交给线程池让他自己去执行就行
     public static ExecutorService executorService = Executors.newFixedThreadPool(10);
 
-    public static void main(String[] args) {
+
+
+    //测试CompletableFuture异步编排
+    public static void main(String[] args) throws ExecutionException, InterruptedException {
+        /**
+         * 创建异步对象:
+         * CompletableFuture提供了四个静态方法来创建一个异步操作
+         *      1.static CompletableFuture<void> runAsync(Runnable runnable);   //默认的在默认线程池内执行
+         *      2.public static CompletableFuture<void> runAsync(Runnable runnable,Executor executor);
+         *      3.public static <U> CompletableFuture<U> supplyAsync(Supplier<U> supplier);    有返回值
+         *      4.public static <U> CompletableFuture<U> supplyAsync(Supplier<U> supplier,Executor executor);    有返回值
+         *
+         * CompletableFuture运行完成成功的回调方法
+         *      1.whenComplete: 可以处理正常和异常的运算结果，exceptionally处理异常情况
+         *      2.whenComplete和whenCompleteAsync的区别: 方法不以Async结尾，意味着action使用相同的线程执行，
+         *        而Async可能会使用其他线程执行(如果是使用相同的线程池，也可能会被同一个线程选中执行)
+         *
+         * handle方法：只要方法完成，不管成功还是失败都返回。
+         *
+         * 线程串行化方法
+         *      1）、thenRun(): 不能获取到上一步的执行结果
+         *      2）、thenAcceptAsync(Consumer,Executor): 能接受上一步的结果，但是无返回值
+         *      3）、thenApplyAsync(Function,Executor): 能接收上一步的结果，有返回值
+         */
+        System.out.println("main...start...");
+
+
+        /*
+        1.方法成功完成后的感知
+        CompletableFuture<Integer> future = CompletableFuture.supplyAsync(() -> {
+            System.out.println("当前线程: " + Thread.currentThread().getId());
+            int i = 10 / 2;
+            System.out.println("运行结果: " + i);
+            return i;
+        }, executorService).whenComplete((result,exception)->{
+            //whenComplete虽然能得到异常信息，但是没法修改返回数据。类似监听器。
+            System.out.println("异步任务成功完成了...结果是" + result + "; 异常是" + exception);
+        }).exceptionally((throwable)->{
+            //exceptionally可以感知异常，同时返回默认值。
+            return 10;
+        });*/
+
+        //2.handle方法，方法完成后的处理
+        /*CompletableFuture<Integer> future = CompletableFuture.supplyAsync(() -> {
+            System.out.println("当前线程: " + Thread.currentThread().getId());
+            int i = 10 / 2;
+            System.out.println("运行结果: " + i);
+            return i;
+        }, executorService).handle((result,exception)->{
+            if (result != null){
+                return result * 2;
+            }
+            if (exception != null){
+                return 0;
+            }
+            return 0;
+        });*/
+
+        /**
+         * 3.线程串行化方法
+         *  1）、thenRun(): 不能获取到上一步的执行结果
+         *  2）、thenAcceptAsync(Consumer,Executor): 能接受上一步的结果，但是无返回值
+         *  3）、thenApplyAsync(Function,Executor): 能接收上一步的结果，有返回值
+         */
+        /*CompletableFuture<String> future = CompletableFuture.supplyAsync(() -> {
+            System.out.println("当前线程: " + Thread.currentThread().getId());
+            int i = 10 / 2;
+            System.out.println("运行结果: " + i);
+            return i;
+        }, executorService).thenApplyAsync(result -> {  //R apply(T t)
+            System.out.println("任务2启动了...");
+            return "Hello" + result;
+        }, executorService);*/
+
+        /**
+         * 4.两任务组合-都要完成(两个任务必须都完成，触发发该任务)
+         *  1）、thenCombine(): 组合两个future，获取两个future的返回结果，并返回当前任务的返回值。
+         *  2）、thenAcceptBoth: 组合两个future,获取两个future任务的返回结果，然后处理任务，没有返回值。
+         *  3）、runAfterBoth: 组合两个future，不需要获取future的结果，只需两个future处理完任务后，处理该任务。
+         */
+        CompletableFuture<Object> future01 = CompletableFuture.supplyAsync(() -> {
+            System.out.println("任务1线程启动: " + Thread.currentThread().getId());
+            int i = 10 / 2;
+            System.out.println("任务1线程结束: ");
+            return i;
+        }, executorService);
+
+        CompletableFuture<Object> future02 = CompletableFuture.supplyAsync(() -> {
+            System.out.println("任务2线程启动: " + Thread.currentThread().getId());
+            int i = 10 / 2;
+            try {
+                Thread.sleep(3);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            System.out.println("任务2线程结束: ");
+            return "Hello";
+        }, executorService);
+
+        /*CompletableFuture<String> future03 = future01.thenCombineAsync(future02, (f1, f2) -> {
+            System.out.println("任务3开始..之前两个线程运行的结果，任务1线程: " + f1 + "任务2线程: " + f2);
+            return "这是任务3线程的返回结果";
+        }, executorService);
+        System.out.println(future03.get());*/
+
+        /**
+         * 5.两任务组合-一个完成(当两个任务中，任意一个future任务完成的时候，触发发该任务) --需要两个线程返回类型相同
+         *  1）、applyToEither(CompletionStage<?> other, Runnable action): 两个任务有一个执行完成，获取它的返回值，处理任务并有新的返回值。
+         *  2）、acceptEither(CompletionStage<?> other, Runnable action): 两个任务有一个执行完成，获取它的返回值，处理任务，没有新的返回值。
+         *  3）、runAfterEither(CompletionStage<?> other, Runnable action, Executor executor): 两个任务有一个执行完成，不需要获取future的结果，处理任务，也没有返回值。
+         */
+        CompletableFuture<Object> future03 = future01.applyToEitherAsync(future02, (result) -> {
+            System.out.println("任务3线程启动,之前的结果是" + result);
+            return "任务3线程运行的返回结果: " + result.toString();
+        }, executorService);
+        System.out.println(future03.get());
+
+        /**
+         * 6.多任务组合
+         *  1）、allOf(): 等待所有任务完成。
+         *  2）、anyOf(): 只要有一个任务完成。
+         */
+        CompletableFuture<String> futureImg = CompletableFuture.supplyAsync(() -> {
+            System.out.println("查询商品的图片信息");
+            return "hello.jpg";
+        });
+
+        CompletableFuture<String> futureAttr = CompletableFuture.supplyAsync(() -> {
+            System.out.println("查询商品的属性信息");
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            return "黑色+256G";
+        });
+
+        CompletableFuture<String> futureDesc = CompletableFuture.supplyAsync(() -> {
+            System.out.println("查询商品的介绍信息");
+            return "华为";
+        });
+
+        //CompletableFuture<Void> allOf = CompletableFuture.allOf(futureImg, futureAttr, futureDesc);
+        CompletableFuture<Object> anyOf = CompletableFuture.anyOf(futureImg, futureAttr, futureDesc);
+        //allOf.get();    //allOf等待所有任务都完成，才算完成
+
+        //线程的返回值,future.get()会阻塞线程，在阻塞时间内线程运行成功之后拿到返回值才会执行以下代码
+        //Integer result = future.get();
+        //System.out.println("main...end..." + result);
+        //System.out.println("main...end..." + futureImg.get() + "=>" + futureAttr.get() + "=>" + futureDesc.get());
+        System.out.println("main...end..." + anyOf.get());
+
+    }
+
+    //测试线程池
+    public void thread(String[] args) {
         executorService.execute(new Runnable01());
 
         /**

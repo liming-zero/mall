@@ -1,6 +1,13 @@
 package com.atguigu.gulimall.product;
 
+import com.atguigu.gulimall.product.dao.AttrGroupDao;
+import com.atguigu.gulimall.product.dao.SkuSaleAttrValueDao;
 import com.atguigu.gulimall.product.service.CategoryService;
+import com.atguigu.gulimall.product.service.SkuSaleAttrValueService;
+import com.atguigu.gulimall.product.vo.frontvo.SkuItemSaleAttrVo;
+import com.atguigu.gulimall.product.vo.frontvo.SkuItemVo;
+import com.atguigu.gulimall.product.vo.frontvo.SpuBaseAttrVo;
+import com.atguigu.gulimall.product.vo.frontvo.SpuItemAttrGroupVo;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.redisson.api.RCountDownLatch;
@@ -13,6 +20,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -26,6 +34,22 @@ class GulimallProductApplicationTests {
     private StringRedisTemplate redisTemplate;
     @Autowired
     private RedissonClient redissonClient;
+    @Autowired
+    private AttrGroupDao attrGroupDao;
+    @Autowired
+    private SkuSaleAttrValueDao saleAttrValueDao;
+
+    @Test
+    public void testSQL02(){
+        List<SkuItemSaleAttrVo> saleAttrsBySpuId = saleAttrValueDao.getSaleAttrsBySpuId(5L);
+        System.out.println(saleAttrsBySpuId);
+    }
+
+    @Test
+    public void testSQL01(){
+        List<SpuItemAttrGroupVo> attrGroupWithAttrsBySpuId = attrGroupDao.getAttrGroupWithAttrsBySpuId(7L, 225L);
+        System.out.println(attrGroupWithAttrsBySpuId);
+    }
 
     /**
      * 测试分布式闭锁

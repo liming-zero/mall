@@ -3,7 +3,7 @@
 
 <mapper namespace="com.atguigu.gulimall.product.dao.AttrGroupDao">
 
-	<!-- 可根据自己的需求，是否要使用 -->
+    <!-- 可根据自己的需求，是否要使用 -->
     <resultMap type="com.atguigu.gulimall.product.entity.AttrGroupEntity" id="attrGroupMap">
         <result property="attrGroupId" column="attr_group_id"/>
         <result property="attrGroupName" column="attr_group_name"/>
@@ -12,6 +12,36 @@
         <result property="icon" column="icon"/>
         <result property="catelogId" column="catelog_id"/>
     </resultMap>
+
+    <!--MyBatis的自定义结果集封装，只要有嵌套属性就要封装自定义结果集-->
+    <resultMap id="spuItemAttrGroupVo" type="com.atguigu.gulimall.product.vo.frontvo.SpuItemAttrGroupVo">
+        <result property="groupName" column="attr_group_name" />
+        <!--集合需要使用collection标签声明,ofType为集合泛型的元素类型-->
+        <collection property="attrs" ofType="com.atguigu.gulimall.product.vo.frontvo.SpuBaseAttrVo">
+            <!--这个元素里面的每一个属性进行封装-->
+            <result column="attr_name" property="attrName"></result>
+            <result column="attr_value" property="attrValue"></result>
+        </collection>
+    </resultMap>
+
+    <!--resultType返回集合里面元素的类型-->
+    <select id="getAttrGroupWithAttrsBySpuId" resultMap="spuItemAttrGroupVo">
+        select pav.spu_id,
+               ag.attr_group_name,
+               ag.attr_group_id,
+               aar.attr_id,
+               attr.attr_name,
+               pav.attr_value
+        from pms_attr_group ag
+                 left join pms_attr_attrgroup_relation aar
+                           on aar.attr_group_id = ag.attr_group_id
+                 left join pms_attr attr
+                           on attr.attr_id = aar.attr_id
+                 left join pms_product_attr_value pav
+                           on pav.attr_id = attr.attr_id
+        where ag.catelog_id = #{catalogId}
+          AND pav.spu_id = #{spuId}
+    </select>
 
 
 </mapper>
