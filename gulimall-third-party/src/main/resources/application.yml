@@ -12,5 +12,9 @@ spring:
       oss:
         endpoint: oss-cn-shanghai.aliyuncs.com
 
+      host: http://dingxin.market.alicloudapi.com
+      path: /dx/sendSms
+      appcode: 5ea1072a0859486e8bd70afd833c6f04
+      tpl_id: TP1711063
 server:
   port: 30000

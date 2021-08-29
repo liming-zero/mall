@@ -21,6 +21,7 @@
         <module>renren-generator</module>
         <module>guli-common</module>
         <module>gulimall-search</module>
+        <module>gulimall-auth-server</module>
     </modules>
 
 </project>
