@@ -2,34 +2,30 @@ package com.atguigu.gulimall.product.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
+import com.atguigu.common.utils.PageUtils;
+import com.atguigu.common.utils.Query;
+import com.atguigu.gulimall.product.dao.CategoryDao;
+import com.atguigu.gulimall.product.entity.CategoryEntity;
 import com.atguigu.gulimall.product.service.CategoryBrandRelationService;
+import com.atguigu.gulimall.product.service.CategoryService;
 import com.atguigu.gulimall.product.vo.frontvo.Catalog2Vo;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.cache.annotation.Caching;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.atguigu.common.utils.PageUtils;
-import com.atguigu.common.utils.Query;
-
-import com.atguigu.gulimall.product.dao.CategoryDao;
-import com.atguigu.gulimall.product.entity.CategoryEntity;
-import com.atguigu.gulimall.product.service.CategoryService;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 
 @Service("categoryService")
@@ -255,15 +251,36 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
      * 使用redisson的分布式锁
      * 缓存里面的数据如何和数据库保持一致？
      * 缓存数据一致性：
-     * 1）、双写模式
-     * 2）、失效模式
+     *      1）、双写模式:改完数据库后并且更改缓存
+     *                  有暂时性的脏数据问题，线程1更改数据，结果线程2比线程1提前更改数据，然后线程1后面才改掉数据
+     *                  会引发暂时性脏数据问题，等待缓存过期时间失效后又得到了最新的数据。
+     *                  脏数据问题可以给业务代码加锁解决
+     *                  会引发的问题:业务代码被锁住，此时业务代码在执行更新操作，当程序执行更新操作时因为加了锁导致数据在此时会不可读，并发会导致程序执行效率低
+     *      2）、失效模式:更新完数据库后删除缓存
+     * 缓存数据一致性 - 解决方案：
+     *      1）、无论是双写模式还是失效模式，都会导致缓存的不一致问题。即多个实例同时更新会出事，怎么办？
+     *          * 如果是用户维度数据(订单数据、用户数据)，这种并发几率非常小，不用考虑这个问题，缓存数据加上过期时间，每隔一段时间触发读的主动更新即可。
+     *          * 如果是菜单，商品介绍等基础数据，也可以去使用canal订阅binlog的方式。
+     *          * 缓存数据 + 过期时间也足够解决大部分业务对于缓存的要求。
+     *          * 通过加锁保证并发读写，写的时候按顺序排好队。读无所谓，所以适合使用读写锁。(业务不关心脏数据，允许临时脏数据可忽略)
+     *      2）、总结：
+     *          * 我们能放入缓存的数据本就不应该是实时性，一致性要求高的。所以缓存数据的时候加上过期时间，保证每天拿到最新数据即可。
+     *          * 我们不应该过度设计，增加系统的复杂性。
+     *          * 遇到实时性，一致性要求高的数据，就应该查数据库，即使慢点。
+     * 我们系统使用的一致性解决方案:
+     *      由于此处代码获取三级分类信息，修改的并发几率很小，一般都是由系统管理员修改，加锁排队执行即可
+     *      1.数据的所有数据都有过期时间，数据过期下一次查询触发主动更新
+     *      2.读写数据的时候，加上分布式的读写锁。
+     *        如果是经常写，经常读的数据会有极大的影响。
+     *      3.读+写 ：等待读锁释放才能修改数据，修改数据的方法使用了SpringCache的注解@CacheEvict，使用失效模式，数据修改后就删除缓存，下次读数据时又将数据存入缓存
      */
     public Map<String, List<Catalog2Vo>> getCatalogJsonFromDBWithRedissonLock() {
         //锁的名字。锁的粒度，越细越快。
-        //锁的粒度，具体缓存的是某个数据：11-号商品：product-11-lock    product-12-lock
+        //锁的粒度，具体缓存的是某个数据：11-号商品：product-11-lock  product-12-lock
         RLock lock = redissonClient.getLock("catalogJSON-lock");
-        lock.lock();
+
         //1.占分布式锁，去redis占坑
+        lock.lock();
         System.out.println("获取分布式锁成功..........................");
 
         try {

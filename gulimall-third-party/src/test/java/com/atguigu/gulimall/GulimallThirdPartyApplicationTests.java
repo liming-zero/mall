@@ -13,6 +13,7 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 @SpringBootTest
 class GulimallThirdPartyApplicationTests {
@@ -25,22 +26,21 @@ class GulimallThirdPartyApplicationTests {
 
     @Test
     public void testSendSmsCode(){
-        smsComponent.sendSmsCode("16621735515","1111");
+        smsComponent.sendSmsCode("16621735515","000000");
     }
 
     @Test
     public void sendSms(){
-        String host = "http://dingxin.market.alicloudapi.com";
-        String path = "/dx/sendSms";
+        String host = "https://dxyzm.market.alicloudapi.com";
+        String path = "/chuangxin/dxjk";
         String method = "POST";
-        String appcode = "5ea1072a0859486e8bd70afd833c6f04";    //你自己的appcode
+        String appcode = "5ea1072a0859486e8bd70afd833c6f04";//开通服务后 买家中心-查看AppCode
         Map<String, String> headers = new HashMap<String, String>();
         //最后在header中的格式(中间是英文空格)为Authorization:APPCODE 83359fd73fe94948385f570e3c139105
         headers.put("Authorization", "APPCODE " + appcode);
         Map<String, String> querys = new HashMap<String, String>();
+        querys.put("content", "【创信】你的验证码是：5873，3分钟内有效！");
         querys.put("mobile", "16621735515");
-        querys.put("param", "code:0000");
-        querys.put("tpl_id", "TP1711063");
         Map<String, String> bodys = new HashMap<String, String>();
 
 

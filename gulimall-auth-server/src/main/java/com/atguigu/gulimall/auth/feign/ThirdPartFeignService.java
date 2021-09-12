@@ -8,6 +8,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 @FeignClient("gulimall-third-party")
 public interface ThirdPartFeignService {
 
-    @PostMapping("/sms/sendcode")
+    @PostMapping("/sms/sendPhoneCode")
     public R sendCode(@RequestParam("phone") String phone, @RequestParam("code") String code);
 }

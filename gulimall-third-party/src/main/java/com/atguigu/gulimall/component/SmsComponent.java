@@ -17,17 +17,15 @@ public class SmsComponent {
     private String host;
     private String path;
     private String appcode;
-    private String tpl_id;
 
-    public void sendSmsCode(String phone,String code){
+    public void sendSmsCode(String phone, String code) {
         String method = "POST";
         Map<String, String> headers = new HashMap<String, String>();
         //最后在header中的格式(中间是英文空格)为Authorization:APPCODE 83359fd73fe94948385f570e3c139105
         headers.put("Authorization", "APPCODE " + appcode);
         Map<String, String> querys = new HashMap<String, String>();
+        querys.put("content", "【谷粒商城】你的验证码是："+code+"，1分钟内有效！");
         querys.put("mobile", phone);
-        querys.put("param", "code:"+code);
-        querys.put("tpl_id", tpl_id);
         Map<String, String> bodys = new HashMap<String, String>();
 
 

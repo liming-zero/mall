@@ -20,7 +20,7 @@ public class SmsSendController {
      * @param phone
      * @return
      */
-    @PostMapping("/sendcode")
+    @PostMapping("/sendPhoneCode")
     public R sendCode(@RequestParam("phone") String phone,@RequestParam("code") String code){
         smsComponent.sendSmsCode(phone,code);
         return R.ok();
