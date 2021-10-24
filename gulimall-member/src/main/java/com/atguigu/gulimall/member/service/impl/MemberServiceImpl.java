@@ -5,6 +5,7 @@ import com.atguigu.gulimall.member.entity.MemberLevelEntity;
 import com.atguigu.gulimall.member.exception.PhoneExistException;
 import com.atguigu.gulimall.member.exception.UsernameExistException;
 import com.atguigu.gulimall.member.vo.MemberRegistryVo;
+import com.atguigu.gulimall.member.vo.MemberVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -74,4 +75,27 @@ public class MemberServiceImpl extends ServiceImpl<MemberDao, MemberEntity> impl
         }
     }
 
+    @Override
+    public MemberEntity login(MemberVo vo) {
+        String loginacct = vo.getLoginacct();
+        String password = vo.getPassword();
+
+        //1.去数据库查询
+        MemberEntity memberEntity = baseMapper.selectOne(new QueryWrapper<MemberEntity>().eq("username", loginacct)
+                .or().eq("mobile", loginacct));
+        if (memberEntity == null){
+            return null;
+        }else{
+            //1.获取到数据库的password跟页面的password对比
+            String pwDB = memberEntity.getPassword();
+            BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+            //2.进行密码匹配
+            boolean matches = passwordEncoder.matches(password, pwDB);
+            if (matches){
+                return memberEntity;
+            }else{
+                return null;
+            }
+        }
+    }
 }

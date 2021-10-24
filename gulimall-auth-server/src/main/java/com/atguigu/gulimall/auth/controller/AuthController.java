@@ -7,6 +7,7 @@ import com.atguigu.common.utils.R;
 import com.atguigu.gulimall.auth.feign.MemberFeignService;
 import com.atguigu.gulimall.auth.feign.ThirdPartFeignService;
 import com.atguigu.gulimall.auth.utils.RandomUtils;
+import com.atguigu.gulimall.auth.vo.LoginVo;
 import com.atguigu.gulimall.auth.vo.RegistryVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -136,7 +137,7 @@ public class AuthController {
                     } else {
                         //注册失败
                         Map<String, String> errors = new HashMap<>();
-                        errors.put("msg", r.getData(new TypeReference<String>() {
+                        errors.put("msg", r.getData("msg",new TypeReference<String>() {
                         }));
                         redirectAttributes.addFlashAttribute("errors", errors);
                         return "redirect:http://auth.gulimall.com/register.html";
@@ -159,6 +160,22 @@ public class AuthController {
         }
         return "redirect:http://auth.gulimall.com/register.html";
 
+    }
+
+    @PostMapping("/login")
+    public String login(LoginVo vo,RedirectAttributes attributes){
+
+        R r = memberFeignService.login(vo);
+        if (r.getCode() == 0){
+            //远程登陆
+            return "redirect:http://gulimall.com";
+        }else{
+            //登录失败重新定向到登录页 重定向可以使用RedirectAttributes放入错误消息，利用session原理
+            Map<String,String> errors = new HashMap<>();
+            errors.put("errors",r.getData("msg",new TypeReference<String>(){}));
+            attributes.addFlashAttribute("errors",errors);
+            return "redirect:http://auth.gulimall.com/login.html";
+        }
     }
 }
 
