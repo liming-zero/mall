@@ -28,7 +28,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Controller
-public class AuthController {
+public class LoginController {
 
     @Autowired
     private ThirdPartFeignService thirdPartFeignService;

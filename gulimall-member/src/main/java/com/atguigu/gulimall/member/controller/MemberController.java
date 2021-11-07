@@ -9,6 +9,7 @@ import com.atguigu.gulimall.member.exception.UsernameExistException;
 import com.atguigu.gulimall.member.feign.CouponFeignService;
 import com.atguigu.gulimall.member.vo.MemberRegistryVo;
 import com.atguigu.gulimall.member.vo.MemberVo;
+import com.atguigu.gulimall.member.vo.SocialUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -41,6 +42,19 @@ public class MemberController {
         member.setNickname("张三");
         R coupons = feignService.memberCoupons();
         return R.ok().put("member",member).put("coupons",coupons.get("coupons"));
+    }
+
+    /**
+     * 社交登录功能
+     */
+    @PostMapping("/oauth2/login")
+    public R oauth2login(@RequestBody SocialUser socialUser) throws Exception {
+        MemberEntity memberEntity = memberService.login(socialUser);
+        if (null != memberEntity){
+            return R.ok().setData(memberEntity);
+        }else{
+            return R.error(BizCodeEnum.LOGIN_PASSWORD_INVAILD_EXECEPTION.getCode(),BizCodeEnum.LOGIN_PASSWORD_INVAILD_EXECEPTION.getMsg());
+        }
     }
 
     /**
