@@ -33,10 +33,10 @@ public class OssController {
 //        String accessId = "<yourAccessKeyId>"; // 请填写您的AccessKeyId。
 //        String accessKey = "<yourAccessKeySecret>"; // 请填写您的AccessKeySecret。
 //        String endpoint = "oss-cn-hangzhou.aliyuncs.com"; // 请填写您的 endpoint。
-        String bucket = "lim-zero"; // 请填写您的 bucketname 。
+        String bucket = "lm--gulimall"; // 请填写您的 bucketname 。
         String host = "https://" + bucket + "." + endpoint; // host的格式为 bucketname.endpoint
         // callbackUrl为 上传回调服务器的URL，请将下面的IP和Port配置为您自己的真实信息。
-        String callbackUrl = "http://88.88.88.88:8888";
+        //String callbackUrl = "http://88.88.88.88:8888";
         String format = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
         String dir = format + "/"; // 用户上传文件时指定的前缀。
 

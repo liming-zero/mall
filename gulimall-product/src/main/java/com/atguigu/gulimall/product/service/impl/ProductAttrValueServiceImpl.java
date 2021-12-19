@@ -1,5 +1,6 @@
 package com.atguigu.gulimall.product.service.impl;
 
+import com.atguigu.common.annotation.SysLog;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -39,6 +40,7 @@ public class ProductAttrValueServiceImpl extends ServiceImpl<ProductAttrValueDao
         return attrValueEntities;
     }
 
+    @SysLog("修改销售属性")
     @Transactional
     @Override
     public void updateSpuAttr(Long spuId, List<ProductAttrValueEntity> entities) {

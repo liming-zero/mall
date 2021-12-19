@@ -1,6 +1,7 @@
 package com.atguigu.gulimall.auth.controller;
 
 import com.alibaba.fastjson.TypeReference;
+import com.atguigu.common.annotation.SysLog;
 import com.atguigu.common.constant.AuthServerConstant;
 import com.atguigu.common.exception.BizCodeEnum;
 import com.atguigu.common.utils.R;
@@ -162,6 +163,7 @@ public class LoginController {
 
     }
 
+    @SysLog("登录")
     @PostMapping("/login")
     public String login(LoginVo vo,RedirectAttributes attributes){
 

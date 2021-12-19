@@ -32,7 +32,7 @@ public class PurchaseController {
     /**
      * 完成采购(手机app操作)
      */
-    @PostMapping("done")
+    @PostMapping("/done")
     //@RequiresPermissions("ware:purchase:list")
     public R done(@RequestBody PurchaseDoneVo purchaseDoneVo){
         purchaseService.done(purchaseDoneVo);
@@ -43,7 +43,7 @@ public class PurchaseController {
     /**
      * 领取采购单(手机app操作)
      */
-    @PostMapping("received")
+    @PostMapping("/received")
     //@RequiresPermissions("ware:purchase:list")
     public R received(@RequestBody List<Long> ids){
         purchaseService.received(ids);
@@ -54,7 +54,7 @@ public class PurchaseController {
     /**
      * 合并或创建采购单
      */
-    @PostMapping("merge")
+    @PostMapping("/merge")
     //@RequiresPermissions("ware:purchase:list")
     public R mergePurchase(@RequestBody MergeVo mergeVo){
         purchaseService.mergePurchase(mergeVo);

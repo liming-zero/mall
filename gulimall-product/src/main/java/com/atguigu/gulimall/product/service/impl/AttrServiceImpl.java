@@ -114,6 +114,12 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
                     respVo.setCatelogName(categoryEntity.getName());
                 }
             }
+            if("sale".equalsIgnoreCase(attrType)){
+                CategoryEntity categoryEntity = categoryDao.selectById(attrEntity.getCatelogId());
+                if (categoryEntity != null) {
+                    respVo.setCatelogName(categoryEntity.getName());
+                }
+            }
             return respVo;
         }).collect(Collectors.toList());
 
