@@ -23,6 +23,16 @@ spring:
     host: 192.168.247.130
     port: 6379
 
+  session:
+    store-type: redis
+
+
+server:
+  port: 11111
+  servlet:
+    session:
+      timeout: 30m
+
 mybatis-plus:
   mapper-locations: classpath:/mapper/**/*.xml
   global-config:
@@ -30,9 +40,6 @@ mybatis-plus:
       id-type: auto
       logic-delete-value: 1      #全局逻辑删除规则
       logic-not-delete-value: 0
-
-server:
-  port: 11111
 
 #配置日志级别
 logging:
@@ -45,4 +52,5 @@ alibaba:
     secret-key: kWm2LVkawRU5z3c4Xv5HwDd4VVT2BM
 #    oss:
 #      endpoint: oss-cn-shanghai.aliyuncs.com
+
 

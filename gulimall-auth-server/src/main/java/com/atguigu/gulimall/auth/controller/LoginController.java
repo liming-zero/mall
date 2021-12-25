@@ -3,31 +3,33 @@ package com.atguigu.gulimall.auth.controller;
 import com.alibaba.fastjson.TypeReference;
 import com.atguigu.common.annotation.SysLog;
 import com.atguigu.common.constant.AuthServerConstant;
+import com.atguigu.common.constant.ProductConstant;
 import com.atguigu.common.exception.BizCodeEnum;
 import com.atguigu.common.utils.R;
+import com.atguigu.common.vo.MemberRespVo;
 import com.atguigu.gulimall.auth.feign.MemberFeignService;
 import com.atguigu.gulimall.auth.feign.ThirdPartFeignService;
 import com.atguigu.gulimall.auth.utils.RandomUtils;
 import com.atguigu.gulimall.auth.vo.LoginVo;
 import com.atguigu.gulimall.auth.vo.RegistryVo;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Controller
 public class LoginController {
 
@@ -163,13 +165,32 @@ public class LoginController {
 
     }
 
+    /**
+     * 如果session中有数据跳转登录页面时直接跳回首页
+     * @return
+     */
+    @GetMapping("/login.html")
+    public String loginPage(HttpSession session){
+        Object attribute = session.getAttribute(AuthServerConstant.LOGIN_USER);
+        if (attribute == null){
+            return "login";
+        }else{
+            return "redirect:http://gulimall.com";
+        }
+    }
+
     @SysLog("登录")
     @PostMapping("/login")
-    public String login(LoginVo vo,RedirectAttributes attributes){
+    public String login(LoginVo vo, RedirectAttributes attributes, HttpSession session){
 
         R r = memberFeignService.login(vo);
         if (r.getCode() == 0){
             //远程登陆
+            MemberRespVo data = r.getData("data", new TypeReference<MemberRespVo>() {
+            });
+            //登录成功放到session中
+            session.setAttribute(AuthServerConstant.LOGIN_USER,data);
+            log.info("登录成功：用户信息{}",r);
             return "redirect:http://gulimall.com";
         }else{
             //登录失败重新定向到登录页 重定向可以使用RedirectAttributes放入错误消息，利用session原理

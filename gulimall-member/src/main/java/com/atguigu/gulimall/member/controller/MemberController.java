@@ -3,6 +3,7 @@ package com.atguigu.gulimall.member.controller;
 import java.util.Arrays;
 import java.util.Map;
 
+import com.alibaba.fastjson.JSON;
 import com.atguigu.common.exception.BizCodeEnum;
 import com.atguigu.gulimall.member.exception.PhoneExistException;
 import com.atguigu.gulimall.member.exception.UsernameExistException;
@@ -79,7 +80,7 @@ public class MemberController {
     public R login(@RequestBody MemberVo vo){
         MemberEntity memberEntity = memberService.login(vo);
         if (null != memberEntity){
-            return R.ok();
+            return R.ok().put("data", JSON.toJSONString(memberEntity));
         }else{
             return R.error(BizCodeEnum.LOGIN_PASSWORD_INVAILD_EXECEPTION.getCode(),BizCodeEnum.LOGIN_PASSWORD_INVAILD_EXECEPTION.getMsg());
         }

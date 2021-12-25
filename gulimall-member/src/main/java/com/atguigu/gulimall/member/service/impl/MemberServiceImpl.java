@@ -57,6 +57,7 @@ public class MemberServiceImpl extends ServiceImpl<MemberDao, MemberEntity> impl
 
         memberEntity.setMobile(memberRegistryVo.getPhone());
         memberEntity.setUsername(memberRegistryVo.getUserName());
+        memberEntity.setNickname(memberEntity.getNickname());
         //密码要进行加密存储
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         String encode = passwordEncoder.encode(memberRegistryVo.getPassword());
@@ -159,6 +160,8 @@ public class MemberServiceImpl extends ServiceImpl<MemberDao, MemberEntity> impl
                 String name = jsonObject.getString("name");
                 String gender = jsonObject.getString("gender");
                 member.setUsername(name);
+                member.setNickname(name);
+                member.setLevelId(1L); //默认会员等级
                 member.setGender("m".equals(gender) ? 1 : 0);//性别
 
             }

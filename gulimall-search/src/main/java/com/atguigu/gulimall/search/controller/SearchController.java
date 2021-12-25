@@ -1,6 +1,7 @@
 package com.atguigu.gulimall.search.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.atguigu.common.constant.AuthServerConstant;
 import com.atguigu.gulimall.search.service.MallSearchService;
 import com.atguigu.gulimall.search.vo.SearchParam;
 import com.atguigu.gulimall.search.vo.SearchResult;
@@ -10,6 +11,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 @Controller
 public class SearchController {
