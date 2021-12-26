@@ -59,7 +59,7 @@
 						<ul class="header_ul_right">
 							<li style="border: 0;">
 								<a th:if="${session.loginUser==null}" href="http://auth.gulimall.com/login.html" class="aa">你好，请登录</a>
-								<a th:else style="width: 100px" class="aa">[[${session.loginUser.nickname}]]</a>
+								<a th:if="${session.loginUser!=null}" style="width: 100px" class="aa">[[${session.loginUser.nickname}]]</a>
 							</li>
 
 							<li th:if="${session.loginUser==null}" ><a href="http://auth.gulimall.com/register.html" style="color: red;">免费注册</a> |</li>
@@ -624,8 +624,8 @@
 								</div>
 							</div>
 							<div class="box-btns-two">
-								<a href="/static/item/../商品分类\index.html">
-									立即预约
+								<a href="http://cart.gulimall.com/addToCart">
+									加入购物车
 								</a>
 							</div>
 							<div class="box-btns-three">
