@@ -2,6 +2,7 @@ package com.atguigu.gulimall.product.service.impl;
 
 import com.atguigu.common.utils.PageUtils;
 import com.atguigu.common.utils.Query;
+import com.atguigu.gulimall.product.dao.ProductAttrValueDao;
 import com.atguigu.gulimall.product.dao.SkuSaleAttrValueDao;
 import com.atguigu.gulimall.product.entity.SkuSaleAttrValueEntity;
 import com.atguigu.gulimall.product.service.SkuSaleAttrValueService;
@@ -47,6 +48,17 @@ public class SkuSaleAttrValueServiceImpl extends ServiceImpl<SkuSaleAttrValueDao
          */
         List<SkuItemSaleAttrVo> skuItemSaleAttrVos = baseMapper.getSaleAttrsBySpuId(spuId);
         return skuItemSaleAttrVos;
+    }
+
+    /**
+     * 连接商品销售属性的名称和value并返回
+     * @param skuId
+     * @return
+     */
+    @Override
+    public List<String> getSkuSaleAttrValuesAsStringList(Long skuId) {
+        SkuSaleAttrValueDao skuSaleAttrValueDao = this.baseMapper;
+        return skuSaleAttrValueDao.getSkuSaleAttrValuesAsStringList(skuId);
     }
 
 }

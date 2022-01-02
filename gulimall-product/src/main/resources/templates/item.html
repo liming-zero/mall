@@ -607,9 +607,8 @@
 
 						<div class="box-btns clear">
 							<div class="box-btns-one">
-								<input type="text" name="" id="" value="1" />
+								<input type="text" name="" id="numInput" value="1" />
 								<div class="box-btns-one1">
-
 									<div>
 										<button id="jia">
 									+
@@ -624,7 +623,7 @@
 								</div>
 							</div>
 							<div class="box-btns-two">
-								<a href="http://cart.gulimall.com/addToCart">
+								<a href="http://cart.gulimall.com/addToCart" id="addToCartA" th:attr="skuId=${item.info.skuId}">
 									加入购物车
 								</a>
 							</div>
@@ -1295,6 +1294,13 @@
 			console.log(filterEle)
 			//3.跳转
 			location.href = "http://item.gulimall.com/" + filterEle[0] + ".html";
+		})
+
+		$("#addToCartA").click(function (){
+			var num = $("#numInput").val();
+			var skuId = $(this).attr("skuId");	//this就是当前按钮
+			location.href = "http://cart.gulimall.com/addToCart?skuId=" + skuId + "&num=" + num;
+			return false;
 		})
 	})
 </script>
