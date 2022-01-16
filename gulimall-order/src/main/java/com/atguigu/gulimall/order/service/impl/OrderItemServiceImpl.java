@@ -1,6 +1,7 @@
 package com.atguigu.gulimall.order.service.impl;
 
 import com.atguigu.gulimall.order.entity.OrderEntity;
+import com.atguigu.gulimall.order.entity.OrderReturnReasonEntity;
 import com.rabbitmq.client.Channel;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.Message;
@@ -8,6 +9,8 @@ import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.rabbit.annotation.RabbitHandler;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Service;
+
+import java.io.IOException;
 import java.util.Map;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -21,6 +24,7 @@ import com.atguigu.gulimall.order.service.OrderItemService;
 
 
 @Slf4j
+@RabbitListener(queues = {"hello-java-queue"})
 @Service("orderItemService")
 public class OrderItemServiceImpl extends ServiceImpl<OrderItemDao, OrderItemEntity> implements OrderItemService {
 
@@ -58,8 +62,32 @@ public class OrderItemServiceImpl extends ServiceImpl<OrderItemDao, OrderItemEnt
         byte[] body = message.getBody();
         //messageProperties消息头属性信息
         MessageProperties messageProperties = message.getMessageProperties();
-
         log.info("接受到消息内容---》{}，类型--》{}，内容--》{}",message,message.getClass().getName(),order);
+        //deliveryTag: channel内接收消息按顺序自增的
+        long deliveryTag = message.getMessageProperties().getDeliveryTag();
+        //basicAck签收消息，第二个参数multiple代表是否批量签收
+        try {
+            if (deliveryTag % 2 == 0){
+                //签收消息
+                channel.basicAck(deliveryTag,false);
+                System.out.println("签收了消息--->" + deliveryTag);
+            }
+            else{
+                //long deliveryTag, boolean multiple, boolean requeue
+                //requeue（true代表消息发回服务器，重新入队列）
+                //拒收消息
+                channel.basicNack(deliveryTag,false,false);
+                System.out.println("没有签收消息--->" + deliveryTag);
+            }
+        } catch (Exception e) {
+            //网络中断
+            e.printStackTrace();
+        }
+    }
+
+    @RabbitHandler
+    public void receiveMessage(OrderReturnReasonEntity reasonEntity){
+        System.out.println("接受到消息...." + reasonEntity);
     }
 
 }
