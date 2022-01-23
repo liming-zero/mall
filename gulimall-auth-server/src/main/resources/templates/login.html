@@ -39,6 +39,7 @@
             <span>|</span>
             <h2 class="btn1">账户登录</h2>
         </div>
+        <div style="color: red" th:if="${session.msg != null}"><br/>[[${session.msg}]]</div>
         <div class="si_bom tab">
             <img src="/static/login/JD_img/show.png" class="bom_1"/>
             <a href="/static/login/#"><img src="/static/login/JD_img/phone-orange.png" class="bom_2"/></a>

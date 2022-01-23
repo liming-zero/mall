@@ -48,4 +48,10 @@ public interface CartService {
      * @param skuId
      */
     void deleteItem(Long skuId);
+
+    /**
+     * 获取当前登录用户所选中的购物项
+     * @return
+     */
+    List<CartItem> getUserCartItems();
 }

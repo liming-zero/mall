@@ -5,6 +5,8 @@ import org.springframework.amqp.rabbit.annotation.EnableRabbit;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+import org.springframework.cloud.openfeign.EnableFeignClients;
+import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 
 /**
  * 使用RabbitMQ
@@ -20,6 +22,8 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
  *    ① @RabbitListener：类 + 方法上（监听哪些队列即可）
  *    ② @RabbitHandler：标注在方法上（重载区分不同的消息）
  */
+@EnableFeignClients
+@EnableRedisHttpSession
 @EnableRabbit
 @EnableDiscoveryClient
 @MapperScan("com.atguigu.gulimall.order.dao")
