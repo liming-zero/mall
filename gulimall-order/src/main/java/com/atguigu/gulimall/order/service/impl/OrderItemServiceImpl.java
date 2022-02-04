@@ -86,7 +86,10 @@ public class OrderItemServiceImpl extends ServiceImpl<OrderItemDao, OrderItemEnt
     }
 
     @RabbitHandler
-    public void receiveMessage(OrderReturnReasonEntity reasonEntity){
+    public void receiveMessage(Message message,OrderReturnReasonEntity reasonEntity,Channel channel) throws IOException {
+        long deliveryTag = message.getMessageProperties().getDeliveryTag();
+        //签收消息
+        channel.basicAck(deliveryTag,false);
         System.out.println("接受到消息...." + reasonEntity);
     }
 

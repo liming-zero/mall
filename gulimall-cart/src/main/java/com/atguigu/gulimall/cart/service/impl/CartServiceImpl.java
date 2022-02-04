@@ -236,8 +236,10 @@ public class CartServiceImpl implements CartService {
         //获取所有被选中的购物项
         List<CartItem> collect = cartItems.stream().filter(cart -> cart.getCheck()).map(cart ->{
             //TODO 更新为最新价格
-            BigDecimal price = productFeignClient.getPrice(cart.getSkuId());
-            cart.setPrice(price);
+            R r = productFeignClient.getPrice(cart.getSkuId());
+            String data = (String) r.get("data");
+
+            cart.setPrice(new BigDecimal(data));
             return cart;
         }).collect(Collectors.toList());
         return collect;

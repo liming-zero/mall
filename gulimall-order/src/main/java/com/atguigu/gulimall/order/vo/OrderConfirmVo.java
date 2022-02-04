@@ -34,6 +34,16 @@ public class OrderConfirmVo {
     @Getter @Setter
     private String orderToken;
 
+    public Integer getCount(){
+        int i = 0;
+        if (items != null){
+            for (OrderItemVo item : items) {
+                i += item.getCount();
+            }
+        }
+        return i;
+    }
+
     /**
      * 订单总额
      */

@@ -46,11 +46,13 @@ public class CartInterceptor implements HandlerInterceptor {
 
         //用户没登陆
         Cookie[] cookies = request.getCookies();
-        for (Cookie cookie : cookies) {
-            String name = cookie.getName();
-            if (CartConstant.TEMP_USER_COOKIE_NAME.equals(name)){
-                userInfoTo.setUserKey(cookie.getValue());   //设置user-key的值与上次访问的值一致
-                userInfoTo.setTempUser(true);
+        if (cookies != null){
+            for (Cookie cookie : cookies) {
+                String name = cookie.getName();
+                if (CartConstant.TEMP_USER_COOKIE_NAME.equals(name)){
+                    userInfoTo.setUserKey(cookie.getValue());   //设置user-key的值与上次访问的值一致
+                    userInfoTo.setTempUser(true);
+                }
             }
         }
 

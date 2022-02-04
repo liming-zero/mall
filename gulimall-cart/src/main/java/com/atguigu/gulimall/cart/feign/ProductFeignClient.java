@@ -20,5 +20,5 @@ public interface ProductFeignClient {
     List<String> getSkuSaleAttrValues(@PathVariable Long skuId);
 
     @GetMapping("/product/skuinfo/{skuId}/price")
-    public BigDecimal getPrice(@PathVariable("skuId") Long skuId);
+    public R getPrice(@PathVariable("skuId") Long skuId);
 }
