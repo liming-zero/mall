@@ -6,6 +6,7 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 public class OrderConfirmVo {
     /**
@@ -33,6 +34,12 @@ public class OrderConfirmVo {
      */
     @Getter @Setter
     private String orderToken;
+
+    /**
+     * 是否有库存
+     */
+    @Getter @Setter
+    private Map<Long,Boolean> stocks;
 
     public Integer getCount(){
         int i = 0;

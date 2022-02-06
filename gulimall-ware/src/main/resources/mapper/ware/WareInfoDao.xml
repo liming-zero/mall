@@ -3,7 +3,7 @@
 
 <mapper namespace="com.atguigu.gulimall.ware.dao.WareInfoDao">
 
-	<!-- 可根据自己的需求，是否要使用 -->
+    <!-- 可根据自己的需求，是否要使用 -->
     <resultMap type="com.atguigu.gulimall.ware.entity.WareInfoEntity" id="wareInfoMap">
         <result property="id" column="id"/>
         <result property="name" column="name"/>
@@ -11,5 +11,19 @@
         <result property="areacode" column="areacode"/>
     </resultMap>
 
+    <select id="listWareIdHasStock" resultType="java.lang.Long">
+        select ware_id
+        from wms_ware_sku
+        where sku_id = #{skuId}
+          and stock - stock_locked > 0
+    </select>
+
+    <update id="lockSkuStock">
+        update wms_ware_sku
+        set stock_locked = stock_locked + #{num}
+        where sku_id = #{skuId}
+          and ware_id = #{wareId}
+          and stock - stock_locked >= #{num}
+    </update>
 
 </mapper>
