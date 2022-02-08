@@ -16,6 +16,7 @@ import com.atguigu.gulimall.order.service.OrderItemService;
 import com.atguigu.gulimall.order.to.OrderCreateTo;
 import com.atguigu.gulimall.order.vo.*;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
+import io.seata.spring.annotation.GlobalTransactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -146,6 +147,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         return confirmVo;
     }
 
+    @GlobalTransactional
     //isolation = Isolation.REPEATABLE_READ mysql默认的隔离级别
     @Transactional
     @Override
