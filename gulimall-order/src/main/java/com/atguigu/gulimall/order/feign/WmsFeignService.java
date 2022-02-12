@@ -27,13 +27,13 @@ public interface WmsFeignService {
     /**
      * 获取运费信息
      */
-    @GetMapping("/ware/wareinfo/fare")
+    @GetMapping("ware/waresku/fare")
     R getFare(@RequestParam("addrId") Long addrId);
 
     /**
      * 锁定订单库存
      */
-    @PostMapping("/ware/wareinfo/lock/order")
+    @PostMapping("ware/waresku/lock/order")
     R orderLockStock(@RequestBody WareSkuLockVo vo);
 
 }

@@ -17,7 +17,4 @@ import java.util.List;
 @Mapper
 public interface WareInfoDao extends BaseMapper<WareInfoEntity> {
 
-    List<Long> listWareIdHasStock(@Param("skuId") Long skuId);
-
-    Long lockSkuStock(@Param("skuId")Long skuId, @Param("wareId")Long wareId, @Param("num")Integer num);
 }

@@ -10,6 +10,10 @@ spring:
       discovery:
         server-addr: 192.168.247.130:8848
 
+    alibaba:
+      seata:
+        tx-service-group: gulimall-product-group
+
   application:
     name: gulimall-product
   jackson:
@@ -52,5 +56,11 @@ alibaba:
     secret-key: kWm2LVkawRU5z3c4Xv5HwDd4VVT2BM
 #    oss:
 #      endpoint: oss-cn-shanghai.aliyuncs.com
+
+#解决json序列化的问题
+seata:
+  client:
+    undo:
+      log-serialization: kryo
 
 

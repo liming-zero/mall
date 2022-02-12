@@ -39,7 +39,7 @@ import org.springframework.session.data.redis.config.annotation.web.http.EnableR
  *  1、每一个i微服务先必须创建undo_log表
  *  2、安装事务协调器：seata-server  https://github.com/seata/seata/releases
  *  3、整合
- *      1.guli-common添加依赖spring-cloud-starter-alibaba-seata seata-all-0.7.1
+ *      1.guli-common添加依赖spring-cloud-starter-alibaba-seata seata-all-1.3.0
  *      2.解压并启动seata-server
  *        ①registry.conf注册中心相关的配置   修改registry type=nacos 配置使用file.conf
  *      3.所有想要用到分布式事务的微服务，都要使用seata DataSourceProxy代理自己的数据源

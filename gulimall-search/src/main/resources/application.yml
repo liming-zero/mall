@@ -8,6 +8,10 @@ spring:
   cloud:
     nacos:
       server-addr: 192.168.247.130:8848
+
+    alibaba:
+      seata:
+        tx-service-group: gulimall-search-group
   application:
     name: gulimall-search
 
@@ -20,3 +24,9 @@ spring:
 
   thymeleaf:
     cache: false
+
+#解决json序列化的问题
+seata:
+  client:
+    undo:
+      log-serialization: kryo

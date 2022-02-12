@@ -147,7 +147,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         return confirmVo;
     }
 
-    @GlobalTransactional
+    //@GlobalTransactional  seata效率太低，不适合使用高并发场景，使用rabbitMQ延迟消息机制保证数据最终一致性
     //isolation = Isolation.REPEATABLE_READ mysql默认的隔离级别
     @Transactional
     @Override
@@ -180,6 +180,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
                 R r = getR(order);
                 if (r.getCode() == 0){
                     //锁顶库存成功了
+                    int i = 10 / 0;
                     respVo.setOrder(order.getOrder());
                     respVo.setCode(0);
                     return respVo;
@@ -371,6 +372,12 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         BigDecimal subtract = orign.subtract(itemEntity.getPromotionAmount()).subtract(itemEntity.getCouponAmount()).subtract(itemEntity.getIntegrationAmount());
         itemEntity.setRealAmount(subtract);
         return itemEntity;
+    }
+
+
+    @Override
+    public OrderEntity getOrderStatus(String orderSn) {
+        return baseMapper.selectOne(new QueryWrapper<OrderEntity>().eq("order_sn",orderSn));
     }
 }
 

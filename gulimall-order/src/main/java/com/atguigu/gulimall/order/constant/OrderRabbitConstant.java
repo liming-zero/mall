@@ -1,0 +1,12 @@
+package com.atguigu.gulimall.order.constant;
+
+public class OrderRabbitConstant {
+    public static final String EXCHANGE = "x-dead-letter-exchange";
+    public static final String ROUTING_KEY = "x-dead-letter-routing-key";
+    public static final String TTL = "x-message-ttl";
+    public static final String ORDER_EXCHANGE= "order-event-exchange";
+    public static final String ORDER_DELAY_QUEUE= "order.delay.queue";
+    public static final String ORDER_RELEASE_QUEUE= "order.release.order.queue";
+    public static final String ORDER_CREATE_ROUTING_KEY= "order.create.order";
+    public static final String ORDER_RELEASE_ROUTING_KEY= "order.release.order";
+}

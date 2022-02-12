@@ -14,6 +14,7 @@ import com.atguigu.gulimall.product.feign.SearchFeignService;
 import com.atguigu.gulimall.product.feign.WareFeignService;
 import com.atguigu.gulimall.product.service.*;
 import com.atguigu.gulimall.product.vo.publishvo.*;
+import io.seata.spring.annotation.GlobalTransactional;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -70,7 +71,11 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
         return new PageUtils(page);
     }
 
-    //TODO 高级部分完善服务出现异常等其他问题
+    /**
+     * TODO 高级部分完善服务出现异常等其他问题
+     * @GlobalTransactional 在后管保存不需要使用大量并发的情况下，适合使用seata的AT分布式事务
+     */
+
     @Transactional
     @Override
     public void saveSpuInfo(SpuSaveVo vo) {

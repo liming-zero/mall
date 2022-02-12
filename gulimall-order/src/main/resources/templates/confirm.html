@@ -1012,7 +1012,7 @@
 		//给表单回填选择的地址
 		$("#addrIdInput").val(addrId);
 		//获取运费信息
-        $.get("http://gulimall.com/api/ware/wareinfo/fare?addrId=" + addrId, function (resp) {
+        $.get("http://gulimall.com/api/ware/waresku/fare?addrId=" + addrId, function (resp) {
             $("#fareEle").text(resp.data.fare);
             var total = [[${orderConfirmData.total}]];
 			var payPrice = total * 1 + resp.data.fare * 1;

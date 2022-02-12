@@ -1,8 +1,6 @@
-package com.atguigu.gulimall.order.config;
+package com.atguigu.gulimall.ware.config;
 
-import com.atguigu.gulimall.order.constant.OrderRabbitConstant;
-import com.atguigu.gulimall.order.entity.OrderEntity;
-import com.rabbitmq.client.Channel;
+import com.atguigu.gulimall.ware.constant.WareRabbitConstant;
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.connection.CorrelationData;
@@ -14,7 +12,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import javax.annotation.PostConstruct;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,70 +22,69 @@ public class MyRabbitConfig {
     RabbitTemplate rabbitTemplate;
 
     /**
-     * 监听消息
+     * 注意，rabbit在监听消息的时候查找队列，没有才会创建所有队列
      */
-    @RabbitListener(queues = {"order.release.order.queue"})
-    public void listener(OrderEntity order, Channel channel, Message message) throws IOException {
-        System.out.println("收到过期的订单信息，准备关闭订单" + order.getOrderSn());
-        channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
+    /*@RabbitListener(queues = {"stock.release.stock.queue"})
+    public void handler(Message message) {
+
+    }*/
+
+    /**
+     * 创建Topic交换机
+     */
+    @Bean
+    public Exchange stockEventExchange() {
+        //交换机名称、是否持久化、是否自动删除
+        //public TopicExchange(String name, boolean durable, boolean autoDelete, Map<String, Object> arguments)
+        return new TopicExchange(WareRabbitConstant.WARE_EXCHANGE, true, false);
     }
 
     /**
-     * 自动创建队列(延时队列、死信队列)
+     * 延时队列、死信队列
      * 一旦创建好队列以后，RabbitMQ存在以下配置，@Bean声明属性即使发生变化，也不会覆盖
      */
     @Bean
-    public Queue orderDelayQueue() {
+    public Queue stockDelayQueue() {
         //队列名称、是否持久化、是否排他、是否自动删除
         //public Queue(String name, boolean durable, boolean exclusive, boolean autoDelete,@Nullable Map<String, Object> arguments)
         Map<String, Object> arguments = new HashMap<>();
         //指定死信路由
-        arguments.put(OrderRabbitConstant.EXCHANGE, OrderRabbitConstant.ORDER_EXCHANGE);
+        arguments.put(WareRabbitConstant.EXCHANGE, WareRabbitConstant.WARE_EXCHANGE);
         //指定死信路由键
-        arguments.put(OrderRabbitConstant.ROUTING_KEY, OrderRabbitConstant.ORDER_RELEASE_ROUTING_KEY);
+        arguments.put(WareRabbitConstant.ROUTING_KEY, WareRabbitConstant.WARE_RELEASE_ROUTING_KEY);
         //消息过期时间(毫秒为单位)
-        arguments.put(OrderRabbitConstant.TTL, 60000);
-        return new Queue(OrderRabbitConstant.ORDER_DELAY_QUEUE, true, false, false, arguments);
+        arguments.put(WareRabbitConstant.TTL, 120000);
+        return new Queue(WareRabbitConstant.WARE_DELAY_QUEUE, true, false, false, arguments);
     }
 
     /**
      * 创建监听队列(普通队列)
      */
     @Bean
-    public Queue orderReleaseOrderQueue() {
-        return new Queue(OrderRabbitConstant.ORDER_RELEASE_QUEUE, true, false, false);
-    }
-
-    /**
-     * 创建Topic交换机
-     */
-    @Bean
-    public Exchange orderEventExchange() {
-        //交换机名称、是否持久化、是否自动删除
-        //public TopicExchange(String name, boolean durable, boolean autoDelete, Map<String, Object> arguments)
-        return new TopicExchange(OrderRabbitConstant.ORDER_EXCHANGE, true, false);
+    public Queue stockReleaseStockQueue() {
+        return new Queue(WareRabbitConstant.WARE_RELEASE_QUEUE, true, false, false);
     }
 
     /**
      * 绑定死信队列(目的地类型是一个队列)
      */
     @Bean
-    public Binding orderCreateOrderBinding() {
+    public Binding stockReleaseBinding() {
         //目的地、目的地类型、交换机、路由键
         //public Binding(String destination, DestinationType destinationType, String exchange, String routingKey,@Nullable Map<String, Object> arguments)
-        return new Binding(OrderRabbitConstant.ORDER_DELAY_QUEUE, Binding.DestinationType.QUEUE, OrderRabbitConstant.ORDER_EXCHANGE, OrderRabbitConstant.ORDER_CREATE_ROUTING_KEY, null);
+        return new Binding(WareRabbitConstant.WARE_DELAY_QUEUE, Binding.DestinationType.QUEUE, WareRabbitConstant.WARE_EXCHANGE, WareRabbitConstant.WARE_STOCK_LOCKED_ROUTING_KEY, null);
     }
 
     /**
      * 绑定普通队列
      */
     @Bean
-    public Binding orderReleaseOrderBinding() {
-        return new Binding(OrderRabbitConstant.ORDER_RELEASE_QUEUE, Binding.DestinationType.QUEUE, OrderRabbitConstant.ORDER_EXCHANGE, OrderRabbitConstant.ORDER_RELEASE_ROUTING_KEY, null);
+    public Binding stockLockedBinding() {
+        return new Binding(WareRabbitConstant.WARE_RELEASE_QUEUE, Binding.DestinationType.QUEUE, WareRabbitConstant.WARE_EXCHANGE, WareRabbitConstant.WARE_STOCK_RELEASE_BINDING_ROUTING_KEY , null);
     }
 
     /**
-     * 使用jacksion序列化
+     * 使用jackson序列化
      */
     @Bean
     public MessageConverter messageConverter() {

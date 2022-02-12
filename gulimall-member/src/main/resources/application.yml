@@ -10,6 +10,10 @@ spring:
       discovery:
         server-addr: 192.168.247.130:8848
 
+    alibaba:
+      seata:
+        tx-service-group: gulimall-member-group
+
   application:
     name: gulimall-member
 
@@ -21,3 +25,9 @@ mybatis-plus:
 
 server:
   port: 8000
+
+#解决json序列化的问题
+seata:
+  client:
+    undo:
+      log-serialization: kryo

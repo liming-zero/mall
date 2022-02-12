@@ -3,8 +3,8 @@ package com.atguigu.gulimall.order.interceptor;
 import com.atguigu.common.constant.AuthServerConstant;
 import com.atguigu.common.vo.MemberRespVo;
 import org.springframework.stereotype.Component;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.web.servlet.HandlerInterceptor;
-import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -16,6 +16,14 @@ public class LoginUserInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        //解决库存请求订单返回登录页的问题,使用路径匹配放行，匹配当前路径
+        String requestURI = request.getRequestURI();
+        ///order/order/status/{orderSn}
+        boolean match = new AntPathMatcher().match("/order/order/status/**", requestURI);
+        if (match){
+            return true;
+        }
+
         MemberRespVo attribute = (MemberRespVo) request.getSession().getAttribute(AuthServerConstant.LOGIN_USER);
         if (attribute != null){
             loginUser.set(attribute);
