@@ -9,4 +9,8 @@ public class OrderRabbitConstant {
     public static final String ORDER_RELEASE_QUEUE= "order.release.order.queue";
     public static final String ORDER_CREATE_ROUTING_KEY= "order.create.order";
     public static final String ORDER_RELEASE_ROUTING_KEY= "order.release.order";
+    //订单绑定库存服务队列
+    public static final String ORDER_RELEASE_STOCK_QUEUE= "stock.release.stock.queue";
+    //订单绑定库存服务队列路由键
+    public static final String ORDER_RELEASE_OTHER_ROUTING_KEY= "order.release.other.#";
 }

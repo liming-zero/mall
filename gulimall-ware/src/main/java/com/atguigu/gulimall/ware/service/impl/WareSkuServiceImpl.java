@@ -3,6 +3,7 @@ package com.atguigu.gulimall.ware.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.atguigu.common.to.SkuHasStockTo;
+import com.atguigu.common.to.mq.OrderTo;
 import com.atguigu.common.to.mq.StockDetailTo;
 import com.atguigu.common.to.mq.StockLockedTo;
 import com.atguigu.common.utils.PageUtils;
@@ -26,6 +27,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +40,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service("wareSkuService")
 public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> implements WareSkuService {
 
@@ -149,6 +152,7 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
     @Transactional(rollbackFor = {NoStockException.class})
     @Override
     public Boolean orderLockStock(WareSkuLockVo vo) {
+        log.info("接收到远程订单服务锁定库存消息：{}",JSON.toJSONString(vo));
         /**
          * 保存订单工作单
          */
@@ -227,19 +231,44 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
             if (r.getCode() == 0){
                 OrderVo order = r.getData(new TypeReference<OrderVo>() {
                 });
-                //没有订单或者已取消订单，解锁库存
+                //没有订单或者已取消订单，或者订单是新建状态没有付款，解锁库存
                 if (order == null || OrderStatusEnum.CANCLED.getCode().equals(order.getStatus())) {
                     //当前库存工作单详情，状态是1，已锁定但是未解锁才可以解锁
                     if (detailEntity.getLockStatus() == 1){
                         baseMapper.unLockStock(detail.getSkuId(), detail.getWareId(), detail.getSkuNum());
-                        //库存解锁，库存工作单也更新状态
-                        detailEntity.setLockStatus(2);      //已解锁状态
-                        orderTaskDetailService.updateById(detailEntity);
+                        //库存解锁，库存工作单也更新状态。不使用rabbitMQ发送的对象，因为在这期间库存信息有可能发生改变
+                        WareOrderTaskDetailEntity taskDetail = new WareOrderTaskDetailEntity();
+                        taskDetail.setId(detail.getId());
+                        taskDetail.setLockStatus(2);      //已解锁状态
+                        orderTaskDetailService.updateById(taskDetail);
                     }
                 }
             }else{
                 throw new RuntimeException("远程订单服务调用失败");
             }
+        }
+    }
+
+    /**
+     * 防止订单服务卡顿，导致订单状态消息一直改不了，导致库存消息优先到期。查订单状态是新建状态，无法解锁库存
+     * @param orderVo
+     */
+    @Transactional
+    @Override
+    public void unLockStock(OrderTo orderVo) {
+        String orderSn = orderVo.getOrderSn();
+        //先查询最新的库存工作单解锁状态
+        WareOrderTaskEntity orderTaskEntity = orderTaskService.getOrderTaskByOrderSn(orderSn);
+        //按照库存工作单找到所有没有解锁的库存进行解锁，1代表是未解锁的
+        List<WareOrderTaskDetailEntity> list = orderTaskDetailService.list
+                (new QueryWrapper<WareOrderTaskDetailEntity>().eq("task_id", orderTaskEntity.getId()).eq("lock_status", 1));
+        for (WareOrderTaskDetailEntity entity : list) {
+            baseMapper.unLockStock(entity.getSkuId(),entity.getWareId(),entity.getSkuNum());
+            //更改库存工作单的状态
+            WareOrderTaskDetailEntity detail = new WareOrderTaskDetailEntity();
+            detail.setId(entity.getId());
+            detail.setLockStatus(2);    //已解锁
+            orderTaskDetailService.updateById(detail);
         }
     }
 

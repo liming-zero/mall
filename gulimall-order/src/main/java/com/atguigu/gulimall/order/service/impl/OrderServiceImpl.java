@@ -1,9 +1,15 @@
 package com.atguigu.gulimall.order.service.impl;
 
 import com.alibaba.fastjson.TypeReference;
+import com.atguigu.common.to.mq.OrderTo;
+import com.atguigu.common.utils.PageUtils;
+import com.atguigu.common.utils.Query;
 import com.atguigu.common.utils.R;
 import com.atguigu.common.vo.MemberRespVo;
 import com.atguigu.gulimall.order.constant.OrderConstant;
+import com.atguigu.gulimall.order.constant.OrderRabbitConstant;
+import com.atguigu.gulimall.order.dao.OrderDao;
+import com.atguigu.gulimall.order.entity.OrderEntity;
 import com.atguigu.gulimall.order.entity.OrderItemEntity;
 import com.atguigu.gulimall.order.enume.OrderStatusEnum;
 import com.atguigu.gulimall.order.exception.NoStockException;
@@ -13,16 +19,24 @@ import com.atguigu.gulimall.order.feign.ProductFeignService;
 import com.atguigu.gulimall.order.feign.WmsFeignService;
 import com.atguigu.gulimall.order.interceptor.LoginUserInterceptor;
 import com.atguigu.gulimall.order.service.OrderItemService;
+import com.atguigu.gulimall.order.service.OrderService;
 import com.atguigu.gulimall.order.to.OrderCreateTo;
 import com.atguigu.gulimall.order.vo.*;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
-import io.seata.spring.annotation.GlobalTransactional;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.aop.framework.AopContext;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -31,21 +45,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.atguigu.common.utils.PageUtils;
-import com.atguigu.common.utils.Query;
-
-import com.atguigu.gulimall.order.dao.OrderDao;
-import com.atguigu.gulimall.order.entity.OrderEntity;
-import com.atguigu.gulimall.order.service.OrderService;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
-import org.springframework.web.context.request.RequestAttributes;
-import org.springframework.web.context.request.RequestContextHolder;
 
 
 @Slf4j
@@ -67,6 +66,8 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
     private ProductFeignService productFeignService;
     @Autowired
     private OrderItemService orderItemService;
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -176,12 +177,21 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
             if (abs < 0.01) {
                 //3、保存订单
                 saveOrder(order);
-                //4、TODO 远程锁定库存，只要有异常，回滚订单数据
+                /**
+                 * 4、TODO 远程锁定库存，只要有异常，回滚订单数据
+                 * 为了保持高并发，库存服务自己回滚，可以发消息给库存服务
+                 * 库存服务本身也可以使用自动解锁模式
+                 */
                 R r = getR(order);
                 if (r.getCode() == 0){
                     //锁顶库存成功了
-                    int i = 10 / 0;
                     respVo.setOrder(order.getOrder());
+
+                    //TODO 远程扣减积分，出异常
+                    //int i = 10 / 0;
+
+                    //TODO 订单创建成功发送消息给MQ
+                    rabbitTemplate.convertAndSend(OrderRabbitConstant.ORDER_EXCHANGE,OrderRabbitConstant.ORDER_CREATE_ROUTING_KEY,order.getOrder());
                     respVo.setCode(0);
                     return respVo;
                 } else {
@@ -259,6 +269,11 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         return to;
     }
 
+    /**
+     * 计算价格
+     * @param orderEntity
+     * @param itemEntities
+     */
     private void computePrice(OrderEntity orderEntity, List<OrderItemEntity> itemEntities) {
         //订单的总额，叠加每一个订单项的总额信息
         BigDecimal totalAmt = BigDecimal.ZERO;
@@ -378,6 +393,28 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
     @Override
     public OrderEntity getOrderStatus(String orderSn) {
         return baseMapper.selectOne(new QueryWrapper<OrderEntity>().eq("order_sn",orderSn));
+    }
+
+    /**
+     * rabbitMQ发送消息关闭订单
+     * @param order
+     */
+    @Override
+    public void closeOrder(OrderEntity order) {
+        OrderEntity entity = baseMapper.selectById(order.getId());
+        //如果订单是新建状态则关闭订单
+        if (OrderStatusEnum.CREATE_NEW.getCode() == entity.getStatus()){
+            //不使用rabbitMQ发送的对象，因为在这期间订单信息有可能发生改变
+            OrderEntity orderEntity = new OrderEntity();
+            orderEntity.setId(order.getId());
+            orderEntity.setStatus(OrderStatusEnum.CANCLED.getCode());
+            baseMapper.updateById(orderEntity);
+            //订单只要解锁成功，由于绑定了库存的解锁队列，会通知库存服务进行库存解锁
+            //注意，发送给库存服务的对象要和库存服务接收的对象是同一个
+            OrderTo orderTo = new OrderTo();
+            BeanUtils.copyProperties(order,orderTo);
+            rabbitTemplate.convertAndSend(OrderRabbitConstant.ORDER_EXCHANGE,OrderRabbitConstant.ORDER_RELEASE_OTHER_ROUTING_KEY,orderTo);
+        }
     }
 }
 

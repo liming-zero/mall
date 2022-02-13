@@ -25,13 +25,15 @@ public class MyRabbitConfig {
     RabbitTemplate rabbitTemplate;
 
     /**
-     * 监听消息
+     * 订单释放直接和库存释放进行绑定，避免订单由于其他问题，及时没有创建成功，导致库存服务永远不能解锁
      */
-    @RabbitListener(queues = {"order.release.order.queue"})
-    public void listener(OrderEntity order, Channel channel, Message message) throws IOException {
-        System.out.println("收到过期的订单信息，准备关闭订单" + order.getOrderSn());
-        channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
+    @Bean
+    public Binding orderReleaseOtherBinding() {
+        //目的地、目的地类型、交换机、路由键
+        //public Binding(String destination, DestinationType destinationType, String exchange, String routingKey,@Nullable Map<String, Object> arguments)
+        return new Binding(OrderRabbitConstant.ORDER_RELEASE_STOCK_QUEUE, Binding.DestinationType.QUEUE, OrderRabbitConstant.ORDER_EXCHANGE, OrderRabbitConstant.ORDER_RELEASE_OTHER_ROUTING_KEY, null);
     }
+
 
     /**
      * 自动创建队列(延时队列、死信队列)
