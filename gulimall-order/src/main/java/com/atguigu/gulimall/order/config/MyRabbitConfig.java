@@ -130,6 +130,11 @@ public class MyRabbitConfig {
              */
             @Override
             public void confirm(CorrelationData correlationData, boolean ack, String cause) {
+                /**
+                 * 1、做好消息确认机制(publisher、consumer【手动ACK】)
+                 * 2、每一个发送的消息都在数据库做好记录，定期将失败的消息再次发送一遍。
+                 */
+                //TODO 服务器收到了消息，修改消息的状态
                 System.out.println("confirm...correlationData--->" + correlationData + "===消息是否成功接受--->" + ack + "===失败原因--->" + cause);
             }
         });
@@ -146,6 +151,7 @@ public class MyRabbitConfig {
              */
             @Override
             public void returnedMessage(Message message, int replyCode, String replyText, String exchange, String routingKey) {
+                //报错误了，触发了这个回调方法。修改数据库当前消息的状态--->错误
                 System.out.println("投递消息失败，详细信息--->" + message + "===状态码--->" + replyCode + "===失败原因--->" + replyText + "===发送的交换机--->" + exchange + "===所用的路由键--->" + routingKey);
             }
         });

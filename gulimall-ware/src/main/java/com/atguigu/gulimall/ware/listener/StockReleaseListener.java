@@ -49,6 +49,26 @@ public class StockReleaseListener {
          *    3.只要解锁库存的消息失败，一定要手动告诉服务解锁失败。
          */
         try{
+            /**
+             * 如何保证消息可靠性-消息重复
+             * 1、消息消费成功，事务已经提交，ack时，机器宕机。导致没有ack成功，Broker的消息重新由unack变为ready，并发送给其他消费者。
+             * 2、消息消费失败，由于重试机制，自动又将消息发送出去
+             * 3、成功消费，ack时宕机，消息有unack变为ready，Broker又重新发送。
+             *   ①消费者的业务消费接口应该设计为幂等性的，比如扣库存有工作单的状态标志。
+             *   ②使用防重表(redis/mysql),发送消息每一个都有业务的唯一标识，处理过就不用处理。
+             *   ③rabbitMQ的每一个消息都有redelivered字段，可以获取是否是被重新投递过来的，而不是第一次投递过来的。
+             */
+
+            /**
+             * 如何保证消息可靠性-消息积压
+             * 1、消费者宕机积压
+             * 2、消费者消费能力不足积压
+             * 3、发送者发送流量太大
+             *    ①上线更多的消费者，进行正常消费
+             *    ②上线专门的队列消费服务，将消息先批量取出来，记录数据库，离线慢慢处理。
+             */
+            //当前消息是否是被第二次及以后(重新)派发过来的。
+            //Boolean redelivered = message.getMessageProperties().getRedelivered();
             wareSkuService.unLockStock(lockedTo);
             //手动确认消息接收
             channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);

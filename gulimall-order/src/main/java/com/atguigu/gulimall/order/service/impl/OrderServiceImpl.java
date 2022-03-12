@@ -413,7 +413,24 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
             //注意，发送给库存服务的对象要和库存服务接收的对象是同一个
             OrderTo orderTo = new OrderTo();
             BeanUtils.copyProperties(order,orderTo);
-            rabbitTemplate.convertAndSend(OrderRabbitConstant.ORDER_EXCHANGE,OrderRabbitConstant.ORDER_RELEASE_OTHER_ROUTING_KEY,orderTo);
+            try{
+                //TODO 保证消息一定会发送出去(给数据库保存每一个消息的详细信息)
+                //TODO 定期扫描数据库将失败的消息再发送一遍
+                rabbitTemplate.convertAndSend(OrderRabbitConstant.ORDER_EXCHANGE,OrderRabbitConstant.ORDER_RELEASE_OTHER_ROUTING_KEY,orderTo);
+            }catch (Exception e){
+                /**
+                 * TODO 将没发送的消息进行重试发送。
+                 * 消息丢失问题：
+                 * 1、消息发送出去，由于网络问题没有抵达服务器
+                 *    ①做好容错方法try-catch,发送消息可能会网络失败，失败后要有重试机制，可记录到数据库，采用定期扫描重发的方式。
+                 *    ②做好日志记录，每个消息状态是否都被服务器收到都应该有记录。
+                 *    ③做好定期重发，如果消息没有发送成功，定期去数据库扫描未成功的消息进行重发。
+                 * 2、消息抵达Broker，Broker要将消息写入磁盘(持久化)才算成功，此时Broker尚未持久化完成，宕机。
+                 *    ①publisher也必须加入确认回到机制，确认成功的消息，修改数据库消息状态。
+                 * 3、自动ACK的情况下， 消费者收到消息，但没来得及处理消息然后宕机。
+                 *    ①一定要手动ACK，消费成功才算移除，失败或者没来得及处理就noACK并重新入队
+                 */
+            }
         }
     }
 }
