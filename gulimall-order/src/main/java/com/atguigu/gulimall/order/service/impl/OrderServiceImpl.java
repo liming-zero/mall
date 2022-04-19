@@ -433,6 +433,29 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
             }
         }
     }
+
+    /**
+     * 获取当前订单的支付信息
+     * @param orderSn
+     * @return
+     */
+    @Override
+    public PayVo getOrderPay(String orderSn) {
+        PayVo payVo = new PayVo();
+        OrderEntity orderEntity = this.getOrderStatus(orderSn);
+        BigDecimal payAmount = orderEntity.getPayAmount().setScale(2, BigDecimal.ROUND_UP);//保留两位小数，向上取值
+        //订单的金额
+        payVo.setTotal_amount(payAmount.toString());
+        //订单号
+        payVo.setOut_trade_no(orderSn);
+
+        List<OrderItemEntity> orderItemEntities = orderItemService.list(new QueryWrapper<OrderItemEntity>().eq("order_sn", orderSn));
+        //订单的主题
+        payVo.setSubject(orderItemEntities.get(0).getSkuName());
+        //订单的备注
+        payVo.setBody(orderItemEntities.get(0).getSkuAttrsVals());
+        return payVo;
+    }
 }
 
 
