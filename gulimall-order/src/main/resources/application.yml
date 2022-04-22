@@ -24,6 +24,12 @@ spring:
   session:
     store-type: redis
 
+  mvc:
+    format:
+      date: yyyy-MM-dd HH:mm:ss
+
+
+
 mybatis-plus:
   mapper-locations: classpath:/mapper/**/*.xml
   global-config:

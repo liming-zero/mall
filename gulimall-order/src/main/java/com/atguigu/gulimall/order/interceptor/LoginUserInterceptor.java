@@ -18,9 +18,11 @@ public class LoginUserInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         //解决库存请求订单返回登录页的问题,使用路径匹配放行，匹配当前路径
         String requestURI = request.getRequestURI();
+        AntPathMatcher matcher = new AntPathMatcher();
         ///order/order/status/{orderSn}
-        boolean match = new AntPathMatcher().match("/order/order/status/**", requestURI);
-        if (match){
+        boolean match1 = matcher.match("/order/order/status/**", requestURI);
+        boolean match2 = matcher.match("/payed/notify", requestURI);
+        if (match1 || match2){
             return true;
         }
 

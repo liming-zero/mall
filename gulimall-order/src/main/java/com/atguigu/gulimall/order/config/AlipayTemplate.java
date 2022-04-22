@@ -3,6 +3,7 @@ package com.atguigu.gulimall.order.config;
 import com.alipay.api.AlipayApiException;
 import com.alipay.api.AlipayClient;
 import com.alipay.api.DefaultAlipayClient;
+import com.alipay.api.request.AlipayTradeCloseRequest;
 import com.alipay.api.request.AlipayTradePagePayRequest;
 import com.atguigu.gulimall.order.vo.PayVo;
 import lombok.Data;
@@ -15,17 +16,18 @@ import org.springframework.stereotype.Component;
 public class AlipayTemplate {
 
     //在支付宝创建的应用的id
-    public String app_id;
+    private String app_id;
 
     // 商户私钥，您的PKCS8格式RSA2私钥
-    public String merchant_private_key;
+    private String merchant_private_key;
 
     // 支付宝公钥,查看地址：https://openhome.alipay.com/platform/keyManage.htm 对应APPID下的支付宝公钥。
-    public String alipay_public_key;
+    private String alipay_public_key;
 
     // 服务器[异步通知]页面路径  需http://格式的完整路径，不能加?id=123这类自定义参数，必须外网可以正常访问
     // 支付宝会悄悄的给我们发送一个请求，告诉我们支付成功的信息
-    private String notify_url = "http://4gwv9a85jq.51xd.pub/alipay.trade.page.pay-JAVA-UTF-8/notify_url.jsp";
+    // 分布式事务、最大努力通知方案
+    private String notify_url = "http://tqxz2ogkgu.51xd.pub/payed/notify";
     //private  String notify_url;
 
     // 页面跳转同步通知页面路径 需http://格式的完整路径，不能加?id=123这类自定义参数，必须外网可以正常访问
@@ -43,6 +45,9 @@ public class AlipayTemplate {
 
     // 支付宝网关； https://openapi.alipaydev.com/gateway.do
     private  String gatewayUrl;
+
+    //订单超时时间，收单使用
+    private String timeout = "30m";
 
     public  String pay(PayVo vo) throws AlipayApiException {
 
@@ -70,14 +75,33 @@ public class AlipayTemplate {
                 + "\"total_amount\":\""+ total_amount +"\","
                 + "\"subject\":\""+ subject +"\","
                 + "\"body\":\""+ body +"\","
+                + "\"timeout_express\":\""+timeout+"\","
                 + "\"product_code\":\"FAST_INSTANT_TRADE_PAY\"}");
 
         String result = alipayClient.pageExecute(alipayRequest).getBody();
 
         //会收到支付宝的响应，响应的是一个页面，只要浏览器显示这个页面，就会自动来到支付宝的收银台页面
-        System.out.println("支付宝的响应："+result);
+        System.out.println("支付宝的响应：" + result);
 
         return result;
 
+    }
+
+    /**
+     * @param out_trade_no 商户订单号(请二选一设置)
+     * @return
+     * @throws AlipayApiException
+     */
+    public String closeOrder(String out_trade_no) throws AlipayApiException {
+        System.out.println("接收到收单消息，进行支付宝收单！");
+        AlipayClient alipayClient = new DefaultAlipayClient(gatewayUrl, app_id, merchant_private_key,
+                "json", charset, alipay_public_key, sign_type);
+
+        //设置请求参数
+        AlipayTradeCloseRequest alipayRequest = new AlipayTradeCloseRequest();
+        alipayRequest.setBizContent("{\"out_trade_no\":\""+ out_trade_no +"\"}");
+        //请求
+        String result = alipayClient.execute(alipayRequest).getBody();
+        return result;
     }
 }

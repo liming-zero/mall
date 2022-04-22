@@ -1,0 +1,73 @@
+{
+	"info": {
+		"_postman_id": "962cb169-4026-4d3b-a589-51ed00bdab7c",
+		"name": "采购人员app",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "领取采购单",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "[1]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:88/api/ware/purchase/received",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "88",
+					"path": [
+						"api",
+						"ware",
+						"purchase",
+						"received"
+					]
+				},
+				"description": "领取采购单"
+			},
+			"response": []
+		},
+		{
+			"name": "完成采购",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "[1]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:88/api/ware/purchase/received",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "88",
+					"path": [
+						"api",
+						"ware",
+						"purchase",
+						"received"
+					]
+				},
+				"description": "领取采购单"
+			},
+			"response": []
+		}
+	]
+}

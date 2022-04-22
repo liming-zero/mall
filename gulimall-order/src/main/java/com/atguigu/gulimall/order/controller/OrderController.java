@@ -26,6 +26,18 @@ public class OrderController {
     @Autowired
     private OrderService orderService;
 
+    /**
+     * 查询当前登录用户的订单分页列表
+     */
+    @PostMapping("/queryPageWithItem")
+    //@RequiresPermissions("order:order:list")
+    //public R queryPageWithItem(@RequestParam Map<String, Object> params){
+    //远程调用使用ReqeustBody
+    public R queryPageWithItem(@RequestBody Map<String, Object> params){
+        PageUtils page = orderService.queryPageWithItem(params);
+        return R.ok().put("page", page);
+    }
+
     @GetMapping("/status/{orderSn}")
     public R getOrderStatus(@PathVariable String orderSn){
         OrderEntity order = orderService.getOrderStatus(orderSn);
