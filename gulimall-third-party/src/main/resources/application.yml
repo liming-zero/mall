@@ -2,13 +2,17 @@ spring:
   cloud:
     nacos:
       server-addr: 192.168.247.130
+
+    alibaba:
+      seata:
+        tx-service-group: gulimall-third-party-group
   application:
     name: gulimall-third-party
 
   alibaba:
     cloud:
-      access-key: LTAI5tPvWggL1YSsjJc5VAiG
-      secret-key: kWm2LVkawRU5z3c4Xv5HwDd4VVT2BM
+      access-key: LTAI5t9K19p1gQ5W1AicK4wL
+      secret-key: H6ormuoMpvsL7FSw7y0aUuHmRaEksK
       oss:
         endpoint: oss-cn-shanghai.aliyuncs.com
 
@@ -18,4 +22,10 @@ spring:
       appcode: 5ea1072a0859486e8bd70afd833c6f04
       #tpl_id: TP1711063
 server:
-  port: 30000
+  port: 30020
+
+#解决json序列化的问题
+seata:
+  client:
+    undo:
+      log-serialization: kryo
