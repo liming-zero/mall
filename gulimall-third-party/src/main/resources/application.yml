@@ -9,18 +9,6 @@ spring:
   application:
     name: gulimall-third-party
 
-  #alibaba:
-  #  cloud:
-  #    access-key: LTAI5t9K19p1gQ5W1AicK4wL
-  #    secret-key: H6ormuoMpvsL7FSw7y0aUuHmRaEksK
-  #    oss:
-  #      endpoint: oss-cn-shanghai.aliyuncs.com
-  #
-  #    #host: http://dingxin.market.alicloudapi.com
-  #    host: https://dxyzm.market.alicloudapi.com
-  #    path: /chuangxin/dxjk
-  #    appcode: 5ea1072a0859486e8bd70afd833c6f04
-      #tpl_id: TP1711063
 server:
   port: 30020
 
