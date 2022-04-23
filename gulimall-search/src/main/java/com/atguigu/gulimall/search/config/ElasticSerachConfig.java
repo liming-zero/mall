@@ -5,6 +5,7 @@ import org.elasticsearch.client.HttpAsyncResponseConsumerFactory;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -15,6 +16,9 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 public class ElasticSerachConfig {
+
+    @Value("${elastic.host}")
+    private String elastic_host;
 
     /**
      * ES设置项
@@ -37,7 +41,7 @@ public class ElasticSerachConfig {
     public RestHighLevelClient esRestClient(){
         RestHighLevelClient client = new RestHighLevelClient(
                 RestClient.builder(
-                        new HttpHost("192.168.247.130", 9200, "http")));
+                        new HttpHost(elastic_host, 9200, "http")));
         return client;
     }
 
