@@ -24,7 +24,7 @@ import com.atguigu.gulimall.order.service.OrderItemService;
 
 
 @Slf4j
-@RabbitListener(queues = {"hello-java-queue"})
+//@RabbitListener(queues = {"hello-java-queue"})
 @Service("orderItemService")
 public class OrderItemServiceImpl extends ServiceImpl<OrderItemDao, OrderItemEntity> implements OrderItemService {
 
