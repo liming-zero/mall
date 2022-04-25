@@ -20,6 +20,9 @@ public class ElasticSerachConfig {
     @Value("${elastic.host}")
     private String elastic_host;
 
+    @Value("${elastic.port}")
+    private Integer elastic_port;
+
     /**
      * ES设置项
      */
@@ -41,7 +44,7 @@ public class ElasticSerachConfig {
     public RestHighLevelClient esRestClient(){
         RestHighLevelClient client = new RestHighLevelClient(
                 RestClient.builder(
-                        new HttpHost(elastic_host, 9200, "http")));
+                        new HttpHost(elastic_host, elastic_port, "http")));
         return client;
     }
 
