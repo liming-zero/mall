@@ -100,7 +100,7 @@ public class CartServiceImpl implements CartService {
      */
     private BoundHashOperations<String, Object, Object> getCartOps() {
         //首先获取用户信息，如果用户登录了，有用户id，说明登录了
-        String cartKey = "";
+        String cartKey;
         UserInfoTo userInfoTo = CartInterceptor.threadLocal.get();
         if (userInfoTo.getUserId() != null) {
             //gulimall:cart:1
