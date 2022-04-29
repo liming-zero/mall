@@ -26,5 +26,15 @@ docker run --name elasticsearch -p 9200:9200 -p 9300:9300 \
 -v /mydata/elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml \
 -v /mydata/elasticsearch/data:/usr/share/elasticsearch/data \
 -v  /mydata/elasticsearch/plugins:/usr/share/elasticsearch/plugins \
--d elasticsearch:7.4.2 
+-d elasticsearch:7.4.2
 
+docker run -d --restart always  --name  seata-server -p 8091:8091  -v /usr/local/seata-1.3.0:/seata-server -e SEATA_IP=119.3.151.37 -e SEATA_PORT=8091 seataio/seata-server:1.3.0
+
+192.168.247.130		gulimall.com
+192.168.247.130		search.gulimall.com
+192.168.247.130		item.gulimall.com
+192.168.247.130		auth.gulimall.com
+192.168.247.130		cart.gulimall.com
+192.168.247.130		order.gulimall.com
+192.168.247.130		member.gulimall.com
+192.168.247.130		seckill.gulimall.com

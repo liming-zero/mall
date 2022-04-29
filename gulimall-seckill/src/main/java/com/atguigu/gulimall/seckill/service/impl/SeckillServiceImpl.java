@@ -20,8 +20,11 @@ import org.springframework.data.redis.core.BoundHashOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
@@ -61,7 +64,7 @@ public class SeckillServiceImpl implements SeckillService {
             long startTime = session.getStartTime().getTime();
             long endTime = session.getEndTime().getTime();
             String key = startTime + "_" + endTime;
-            List<String> collect = session.getRelationEntities().stream().map(item -> item.getSkuId().toString() + "_" + item.getPromotionSessionId().toString())
+            List<String> collect = session.getRelationEntities().stream().map(item -> item.getPromotionSessionId().toString()+ "_" +item.getSkuId().toString())
                     .collect(Collectors.toList());
             //缓存活动信息 seckill:skus   key:start_endtime   val:[sessionId_skuId]
             Boolean hasKey = redisTemplate.hasKey(SESSION_CACHE_PREFIX + key);
@@ -90,7 +93,7 @@ public class SeckillServiceImpl implements SeckillService {
                 BeanUtils.copyProperties(seckillSkuVo, skuRedisTo);
 
                 //key是否包含相同的秒杀场次和相同的商品id
-                String key = seckillSkuVo.getSkuId().toString() + "_" + seckillSkuVo.getPromotionSessionId().toString();
+                String key = seckillSkuVo.getPromotionSessionId().toString() + "_" + seckillSkuVo.getSkuId().toString();
                 boolean hasKey = hashOps.hasKey(key);
                 if (!hasKey){
                     //3、设置当前商品的秒杀时间信息
@@ -111,5 +114,66 @@ public class SeckillServiceImpl implements SeckillService {
 
             });
         }
+    }
+
+    /**
+     * 获取当前要秒杀的商品
+     * @return
+     */
+    @Override
+    public List<SecKillSkuRedisTo> getCurrentSeckillSkus() {
+        //1、确定当前时间属于哪个场次
+        long currentTime = new Date().getTime();
+
+        //2、获取这个秒杀场次需要的所有商品信息
+        Set<String> keys = redisTemplate.keys(SESSION_CACHE_PREFIX + "*");
+        for (String key : keys) {
+            //将seckill:sessions:前缀替换为空串
+            String replace = key.replace(SESSION_CACHE_PREFIX, "");
+            String[] s = replace.split("_");
+            long startTime = Long.parseLong(s[0]);
+            long endTime = Long.parseLong(s[1]);
+            if (currentTime >= startTime && currentTime <= endTime){
+                //当前的场次信息  -100, 100获取到所有的数据， 返回key
+                List<String> rangeKeys = redisTemplate.opsForList().range(key, -100, 100);
+                BoundHashOperations<String, String, Object> hashOps = redisTemplate.boundHashOps(SKUKILL_CACHE_PREFIX);
+                //指定获取多个key
+                List<Object> list = hashOps.multiGet(rangeKeys);
+                if (CollectionUtils.isNotEmpty(list)){
+                    List<SecKillSkuRedisTo> collect = list.stream().map(item -> {
+                        SecKillSkuRedisTo redis = JSON.parseObject((String) item, SecKillSkuRedisTo.class);
+                        //redis.setRandomCode(null);    当前秒杀开始需要随机码
+                        return redis;
+                    }).collect(Collectors.toList());
+                    return collect;
+                }
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public SecKillSkuRedisTo getSkuSeckillInfo(Long skuId) {
+        //1、找到所有需要参与秒杀的商品的key
+        BoundHashOperations<String, String, String> hashOps = redisTemplate.boundHashOps(SKUKILL_CACHE_PREFIX);
+        //拿到哈希集合所有的key
+        Set<String> keys = hashOps.keys();
+        String regx = "\\d_" + skuId;
+        for (String key : keys) {
+            //40_1 使用正则匹配
+            boolean matches = Pattern.matches(regx, key);
+            if (matches){
+                SecKillSkuRedisTo redisTo = JSON.parseObject(hashOps.get(key), SecKillSkuRedisTo.class);
+                //随机码, 如果当前时间不在秒杀时间内，随机码不反回
+                long startTime = redisTo.getStartTime();
+                long endTime = redisTo.getEndTime();
+                long currentTime = new Date().getTime();
+                if (!(currentTime >= startTime && currentTime <= endTime)){
+                    redisTo.setRandomCode(null);
+                }
+                return redisTo;
+            }
+        }
+        return null;
     }
 }

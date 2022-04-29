@@ -1,9 +1,13 @@
 package com.atguigu.gulimall.product.service.impl;
 
+import com.alibaba.fastjson.TypeReference;
 import com.atguigu.common.exception.RRException;
+import com.atguigu.common.utils.R;
 import com.atguigu.gulimall.product.entity.SkuImagesEntity;
 import com.atguigu.gulimall.product.entity.SpuInfoDescEntity;
+import com.atguigu.gulimall.product.feign.SeckillFeignService;
 import com.atguigu.gulimall.product.service.*;
+import com.atguigu.gulimall.product.vo.SecKillInfoVo;
 import com.atguigu.gulimall.product.vo.frontvo.SkuItemSaleAttrVo;
 import com.atguigu.gulimall.product.vo.frontvo.SkuItemVo;
 import com.atguigu.gulimall.product.vo.frontvo.SpuItemAttrGroupVo;
@@ -39,6 +43,8 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> i
     private AttrGroupService attrGroupService;
     @Autowired
     private SkuSaleAttrValueService saleAttrValueService;
+    @Autowired
+    private SeckillFeignService seckillFeignService;
     @Autowired
     private ThreadPoolExecutor executor;
 
@@ -141,8 +147,17 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> i
             skuItemVo.setImages(images);
         }, executor);
 
+        CompletableFuture<Void> getSeckillFuture = CompletableFuture.runAsync(() -> {
+            R r = seckillFeignService.getSkuSeckillInfo(skuId);
+            if (r.getCode() == 0) {
+                SecKillInfoVo data = r.getData(new TypeReference<SecKillInfoVo>() {
+                });
+                skuItemVo.setSecKillInfo(data);
+            }
+        }, executor);
+
         //等待所有任务都完成
-        CompletableFuture.allOf(saleAttrFuture,descFuture,baseAttrFuture,imageFuture).get();
+        CompletableFuture.allOf(saleAttrFuture,descFuture,baseAttrFuture,imageFuture,getSeckillFuture).get();
 
         return skuItemVo;
     }
