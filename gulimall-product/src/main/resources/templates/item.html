@@ -600,7 +600,7 @@
 								<dl>
 									<dt>选择[[${saleAttr.attrName}]]</dt>
 									<dd th:each="attrVals:${saleAttr.attrValues}">
-										<a class="sku_attr_value"
+										<a style="cursor: pointer" class="sku_attr_value"
 										   th:attr="skus=${attrVals.skuIds},
 										   class=${#lists.contains(#strings.listSplit(attrVals.skuIds,','),item.info.skuId.toString())?'sku_attr_value checked':'sku_attr_value'}" >
 											<!--<img src="/static/item/img/59ddfcb1Nc3edb8f1.jpg" />--> [[${attrVals.attrValue}]]
@@ -627,8 +627,13 @@
 
 								</div>
 							</div>
-							<div class="box-btns-two">
-								<a href="http://cart.gulimall.com/addToCart" id="addToCartA" th:attr="skuId=${item.info.skuId}">
+							<div class="box-btns-two" th:if="${#dates.createNow().getTime() >= item.secKillInfo.startTime && #dates.createNow().getTime() <= item.secKillInfo.endTime}">
+								<a style="cursor: pointer" id="seckillA" th:attr="skuId=${item.info.skuId},sessionId=${item.secKillInfo.promotionSessionId},code=${item.secKillInfo.randomCode}">
+									立即抢购
+								</a>
+							</div>
+							<div class="box-btns-two" th:if="${#dates.createNow().getTime() < item.secKillInfo.startTime || #dates.createNow().getTime() > item.secKillInfo.endTime}">
+								<a style="cursor: pointer" href="http://cart.gulimall.com/addToCart" id="addToCartA" th:attr="skuId=${item.info.skuId}">
 									加入购物车
 								</a>
 							</div>
@@ -1307,7 +1312,23 @@
 			location.href = "http://cart.gulimall.com/addToCart?skuId=" + skuId + "&num=" + num;
 			return false;
 		})
+
+		$("#seckillA").click(function (){
+			//判断用户是否登录
+			var isLogin = [[${session.loginUser!=null}]];
+			if (isLogin){
+				//killId:场次Id+商品Id的组合1_40
+				var killId = $(this).attr("sessionid") + "_" +$(this).attr("skuId");
+				var key = $(this).attr("code");
+				var num = $("#numInput").val();
+				location.href = "http://seckill.gulimall.com/kill?killId=" + killId + "&key=" + key + "&num=" + num;
+			} else {
+				alert('秒杀请先登录');
+			}
+
+		})
 	})
+
 </script>
 
 </html>

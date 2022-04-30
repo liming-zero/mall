@@ -21,6 +21,7 @@ spring:
 
   session:
     store-type: redis
+
   task:
     execution:
       pool:
