@@ -627,12 +627,12 @@
 
 								</div>
 							</div>
-							<div class="box-btns-two" th:if="${#dates.createNow().getTime() >= item.secKillInfo.startTime && #dates.createNow().getTime() <= item.secKillInfo.endTime}">
+							<div class="box-btns-two" th:if="${item.secKillInfo != null && (#dates.createNow().getTime() >= item.secKillInfo.startTime && #dates.createNow().getTime() <= item.secKillInfo.endTime)}">
 								<a style="cursor: pointer" id="seckillA" th:attr="skuId=${item.info.skuId},sessionId=${item.secKillInfo.promotionSessionId},code=${item.secKillInfo.randomCode}">
 									立即抢购
 								</a>
 							</div>
-							<div class="box-btns-two" th:if="${#dates.createNow().getTime() < item.secKillInfo.startTime || #dates.createNow().getTime() > item.secKillInfo.endTime}">
+							<div class="box-btns-two" th:if="${item.secKillInfo == null || (#dates.createNow().getTime() < item.secKillInfo.startTime || #dates.createNow().getTime() > item.secKillInfo.endTime)}">
 								<a style="cursor: pointer" href="http://cart.gulimall.com/addToCart" id="addToCartA" th:attr="skuId=${item.info.skuId}">
 									加入购物车
 								</a>

@@ -23,6 +23,11 @@
             <artifactId>guli-common</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
+        <!--使用EndPoint特性-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
 
         <!--导入SpringSession依赖，获取用户信息的系统都需要配置-->
         <dependency>

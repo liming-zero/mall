@@ -5,6 +5,7 @@ import com.atguigu.gulimall.order.entity.OrderEntity;
 import com.rabbitmq.client.Channel;
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.connection.CorrelationData;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
@@ -12,6 +13,7 @@ import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
@@ -22,7 +24,17 @@ import java.util.Map;
 public class MyRabbitConfig {
 
     @Autowired
-    RabbitTemplate rabbitTemplate;
+    private RabbitTemplate rabbitTemplate;
+
+    /**
+     * 绑定监听秒杀服务的队列
+     */
+    @Bean
+    public Binding orderSeckillOrderQueueBinding() {
+        //目的地、目的地类型、交换机、路由键
+        //public Binding(String destination, DestinationType destinationType, String exchange, String routingKey,@Nullable Map<String, Object> arguments)
+        return new Binding(OrderRabbitConstant.ORDER_SECKILL_QUEUE, Binding.DestinationType.QUEUE, OrderRabbitConstant.ORDER_EXCHANGE, OrderRabbitConstant.ORDER_SECKILL_ROUTING_KEY, null);
+    }
 
     /**
      * 订单释放直接和库存释放进行绑定，避免订单由于其他问题，及时没有创建成功，导致库存服务永远不能解锁
@@ -32,6 +44,17 @@ public class MyRabbitConfig {
         //目的地、目的地类型、交换机、路由键
         //public Binding(String destination, DestinationType destinationType, String exchange, String routingKey,@Nullable Map<String, Object> arguments)
         return new Binding(OrderRabbitConstant.ORDER_RELEASE_STOCK_QUEUE, Binding.DestinationType.QUEUE, OrderRabbitConstant.ORDER_EXCHANGE, OrderRabbitConstant.ORDER_RELEASE_OTHER_ROUTING_KEY, null);
+    }
+
+    /**
+     * 监听秒杀服务，削峰使用的队列
+     * 一旦创建好队列以后，RabbitMQ存在以下配置，@Bean声明属性即使发生变化，也不会覆盖
+     */
+    @Bean
+    public Queue orderSeckillOrderQueue() {
+        //队列名称、是否持久化、是否排他、是否自动删除
+        //public Queue(String name, boolean durable, boolean exclusive, boolean autoDelete,@Nullable Map<String, Object> arguments)
+        return new Queue(OrderRabbitConstant.ORDER_SECKILL_QUEUE, true, false, false);
     }
 
 
@@ -88,6 +111,17 @@ public class MyRabbitConfig {
     public Binding orderReleaseOrderBinding() {
         return new Binding(OrderRabbitConstant.ORDER_RELEASE_QUEUE, Binding.DestinationType.QUEUE, OrderRabbitConstant.ORDER_EXCHANGE, OrderRabbitConstant.ORDER_RELEASE_ROUTING_KEY, null);
     }
+
+    /*
+    @Primary TODO
+    @Bean
+    public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory){
+        RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
+        rabbitTemplate.setMessageConverter(messageConverter());
+        initRabbitTemplate();
+        this.rabbitTemplate = rabbitTemplate;
+        return rabbitTemplate;
+    }*/
 
     /**
      * 使用jacksion序列化

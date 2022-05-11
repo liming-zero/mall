@@ -13,4 +13,8 @@ public class OrderRabbitConstant {
     public static final String ORDER_RELEASE_STOCK_QUEUE= "stock.release.stock.queue";
     //订单绑定库存服务队列路由键
     public static final String ORDER_RELEASE_OTHER_ROUTING_KEY= "order.release.other.#";
+    //监听秒杀服务，削峰队列
+    public static final String ORDER_SECKILL_QUEUE= "order.seckill.order.queue";
+    //秒杀服务->订单服务路由键
+    public static final String ORDER_SECKILL_ROUTING_KEY= "order.seckill.order";
 }

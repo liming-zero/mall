@@ -9,6 +9,11 @@ spring:
       seata:
         tx-service-group: gulimall-auth-server-group
 
+    sentinel:
+      transport:
+        port: 8719  #每一个微服务给控制台传输数据使用的端口
+        dashboard: localhost:8333
+
   redis:
     host: 192.168.247.130
     port: 6379

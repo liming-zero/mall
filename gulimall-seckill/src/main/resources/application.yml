@@ -5,6 +5,12 @@ spring:
         #server-addr: 192.168.247.130:8848
         server-addr: 119.3.151.37:8848
 
+    sentinel:
+      transport:
+        port: 8719  #每一个微服务给控制台传输数据使用的端口
+        dashboard: localhost:8333
+        #client-ip: localhost
+
   application:
     name: gulimall-seckill
 
@@ -21,6 +27,15 @@ spring:
 
   session:
     store-type: redis
+
+  rabbitmq:
+    host: 119.3.151.37
+    virtual-host: /
+    port: 5672
+    publisher-confirm-type: correlated
+    publisher-returns: true
+    template:
+      mandatory: true
 
   task:
     execution:

@@ -14,6 +14,12 @@ spring:
     alibaba:
       seata:
         tx-service-group: gulimall-search-group
+
+    sentinel:
+      transport:
+        port: 8719  #每一个微服务给控制台传输数据使用的端口
+        dashboard: localhost:8333
+
   application:
     name: gulimall-search
 
