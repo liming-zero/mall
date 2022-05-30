@@ -42,14 +42,12 @@ class GulimallCouponApplicationTests {
         System.out.println(startDate);
         System.out.println(endDate);
 
-        System.out.println(getDate());
-        System.out.println(getDate());
-        System.out.println(getDate());
-        System.out.println(getDate());
-        System.out.println(getDate());
-        System.out.println(getDate());
-        System.out.println(getDate());
-        System.out.println(getDate());
+        LocalDateTime current = LocalDateTime.now();
+        LocalDateTime end = LocalDateTime.now();
+        Duration between = Duration.between(current, end);
+        long days = between.toDays();
+        System.out.println(String.format("相差的天数:%s", days));
+        System.out.println(current);
     }
 
     public static String getDate(){

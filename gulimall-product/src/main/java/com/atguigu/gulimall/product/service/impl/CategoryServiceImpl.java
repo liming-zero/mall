@@ -21,6 +21,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import java.util.*;
@@ -103,6 +104,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
      */
     @Override
     public Long[] findCatelogPath(Long catelogId) {
+        Assert.notNull(catelogId, "分类id不能为空");
         List<Long> paths = new ArrayList<>();
         List<Long> parentPath = findParentPath(catelogId, paths);
         Collections.reverse(parentPath);    //逆转集合顺序

@@ -97,14 +97,14 @@ class GulimallProductApplicationTests {
     @Test
     void testRedis() {
         final ValueOperations<String, String> ops = redisTemplate.opsForValue();
-        ops.set("hello","world_" + UUID.randomUUID().toString());   //保存
+        ops.set("hello","world_" + UUID.randomUUID());   //保存
         String hello = ops.get("hello");    //查询
         System.out.println("之前保存的数据是" + hello);
     }
 
     @Test
     void contextLoads() {
-        Long[] catelogPath = categoryService.findCatelogPath(225L);
+        Long[] catelogPath = categoryService.findCatelogPath(null);
         log.info("完整路径:{}", Arrays.asList(catelogPath));
     }
 
