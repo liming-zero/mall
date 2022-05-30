@@ -1,7 +1,7 @@
 package com.atguigu.gulimall.seckill.stateMachine.business.enums;
 
 public enum BizTypeEnum {
-    BIZ_CREDIT("CREDIT", "");
+    BIZ_CREDIT("CREDIT", "授信");
 
     private String code;
 

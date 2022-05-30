@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -15,7 +16,7 @@ import java.util.Map;
 @Component
 public class StepHandlerFactory {
 
-    private static Map<String, StepHandler> stepHandlerMap;
+    private static Map<String, StepHandler> stepHandlerMap = new HashMap<>();
 
     @Autowired
     private void init(List<StepHandler> stepHandlers){
@@ -24,7 +25,7 @@ public class StepHandlerFactory {
         }
     }
 
-    public StepHandler getStepHandler(String productCode, StepHandlerEnum stepHandlerEnum){
+    public StepHandler getStepHandler(Integer productCode, StepHandlerEnum stepHandlerEnum){
         Assert.notNull(productCode, "");
         Assert.notNull(stepHandlerEnum, "");
 

@@ -27,7 +27,7 @@ public class FlowNodeManagerFactory {
         }
     }
 
-    public IFlowNodeManager getFlowNodeManagerByProduct(Integer productCode, BizTypeEnum bizTypeEnum) throws Exception {
+    public IFlowNodeManager getFlowNodeManagerByProduct(Integer productCode, BizTypeEnum bizTypeEnum){
         if (productCode == null || bizTypeEnum == null){
             throw new NullPointerException();
         }

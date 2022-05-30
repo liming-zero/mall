@@ -10,7 +10,9 @@ public enum CreditFlowStatusEnum implements IFlowNodeStatus {
     PROCESS("2001", "处理中"),
     FAIL("3001", "失败"),
 
-    NEXT_PENDING("1011", "下一节点初始状态");
+    NEXT_PENDING("1011", "下一节点初始状态"),
+
+    SUCCESS_PENDING("200", "下一节点初始状态");
 
     /**
      * 流程状态码

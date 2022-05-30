@@ -6,7 +6,7 @@ public class ContextBO {
 
     private String bizId;
 
-    private String productCode;
+    private Integer productCode;
 
     private Map<String, Object> bizParam;
 
@@ -18,11 +18,11 @@ public class ContextBO {
         this.bizId = bizId;
     }
 
-    public String getProductCode() {
+    public Integer getProductCode() {
         return productCode;
     }
 
-    public void setProductCode(String productCode) {
+    public void setProductCode(Integer productCode) {
         this.productCode = productCode;
     }
 

@@ -1,7 +1,7 @@
 package com.atguigu.gulimall.seckill.stateMachine.business.enums;
 
 public enum ProductEnum {
-    GULIMALL(100001, "谷粒商城");
+    GULIMALL(10000, "谷粒商城");
 
     private Integer code;
 
