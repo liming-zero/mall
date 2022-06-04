@@ -10,12 +10,15 @@ import com.atguigu.gulimall.product.vo.frontvo.SpuBaseAttrVo;
 import com.atguigu.gulimall.product.vo.frontvo.SpuItemAttrGroupVo;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.redisson.api.RCountDownLatch;
 import org.redisson.api.RLock;
 import org.redisson.api.RReadWriteLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 
@@ -38,6 +41,12 @@ class GulimallProductApplicationTests {
     private AttrGroupDao attrGroupDao;
     @Autowired
     private SkuSaleAttrValueDao saleAttrValueDao;
+
+    @Test
+    public void testAspect(){
+        Object o = new Object();
+        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(o.getClass());
+    }
 
     @Test
     public void testSQL02(){

@@ -7,6 +7,7 @@ import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 
 /**
  * 3.JSR303(Java规范体验第303号，规定了数据效验的相关标准)
@@ -70,6 +71,7 @@ import org.springframework.context.annotation.ComponentScan;
 @ComponentScan("com.atguigu")
 @EnableDiscoveryClient
 @MapperScan("com.atguigu.gulimall.product.dao")
+@EnableAspectJAutoProxy //开启基于注解得aop模式
 @SpringBootApplication
 public class GulimallProductApplication {
 
