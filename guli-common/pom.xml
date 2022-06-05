@@ -23,6 +23,17 @@
 
     <dependencies>
 
+        <!--链路追踪Sleuth-->
+        <!--<dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-sleuth</artifactId>
+        </dependency>-->
+        <!--Twitter zipkin  默认引入了sleuth-->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-zipkin</artifactId>
+        </dependency>
+
         <!--sentinel-->
         <dependency>
             <groupId>com.alibaba.cloud</groupId>
@@ -124,6 +135,14 @@
                 <groupId>com.alibaba.cloud</groupId>
                 <artifactId>spring-cloud-alibaba-dependencies</artifactId>
                 <version>2.2.5.RELEASE</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <!--SpringCloud-->
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>Hoxton.SR9</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>

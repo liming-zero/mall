@@ -36,6 +36,19 @@ spring:
   session:
     store-type: redis
 
+  #服务追踪
+  zipkin:
+    base-url: http://119.3.151.37:9411/
+    #关闭服务发现，否则springCloud会把zipkin的url当作服务名称
+    discovery-client-enabled: false
+    #指定以http的方式汇报数据
+    sender:
+      type: web
+  #设置抽样采样率为100%，默认为0，1，即10%
+  sleuth:
+    sampler:
+      probability: 1
+
 
 server:
   port: 11111
@@ -54,7 +67,9 @@ mybatis-plus:
 #配置日志级别
 logging:
   level:
-    com.atguigu.gulimall: debug
+    #com.atguigu.gulimall: debug
+    org.springframwork.openfeign: debug
+    org.springframwork.sleuth: debug
 
 alibaba:
   cloud:

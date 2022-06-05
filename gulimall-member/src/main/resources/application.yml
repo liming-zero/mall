@@ -31,6 +31,19 @@ spring:
   redis:
     host: 192.168.247.130
 
+  #服务追踪
+  zipkin:
+    base-url: http://119.3.151.37:9411/
+    #关闭服务发现，否则springCloud会把zipkin的url当作服务名称
+    discovery-client-enabled: false
+    #指定以http的方式汇报数据
+    sender:
+      type: web
+  #设置抽样采样率为100%，默认为0，1，即10%
+  sleuth:
+    sampler:
+      probability: 1
+
 mybatis-plus:
   mapper-locations: classpath:/mapper/**/*.xml
   global-config:
