@@ -28,3 +28,69 @@ docker run --name elasticsearch -p 9200:9200 -p 9300:9300 \
 -v  /mydata/elasticsearch/plugins:/usr/share/elasticsearch/plugins \
 -d elasticsearch:7.4.2 
 
+cat > /etc/sysctl.d/k8s.conf << EOF 
+net.bridge.bridge-nf-call-ip6tables = 1
+net.bridge.bridge-nf-call-iptables = 1
+EOF
+
+yum install -y yum-utils \
+device-mapper-persistent-data \
+lvm2
+
+yum-config-manager \
+--add-repo \
+https://dowload.docker.com/linux/centos/docker-ce.repo
+
+yum install -y docker-ce docker-ce-cli containerd.io 19.03
+
+sudo mkdir -p /etc/docker
+sudo tee /etc/docker/daemon.json <<-'EOF'
+{
+  "registry-mirrors": ["https://82m9ar63.mirror.aliyuncs.com"]
+}
+EOF
+
+cat > /etc/yum.repos.d/kubernetes.repo << EOF
+[kubernetes]
+name=Kubernetes
+baseurl=https://mirrors.aliyun.com/kubernetes/yum/repos/kubernetes-el7-x86_64
+enable=1
+gpgcheck=0
+repo_gpgcheck=0
+gpgkey=https://mirrors.aliyun.com/kubernetesyum/doc/yum-key.gpg
+https://mirrors.aliyun.com/kubernetesyum/doc/rpm-package-key.gpg
+EOF
+
+yum install -y kubelet-1.17.3 kubeadm-1.17.3 kubectl-1.17.3
+
+systemctl enable kubelet
+systemctl start kubelet
+
+kubeadm init \
+--apiserver-advertise-address=192.168.247.128 \
+--image-repository registry.cn-hangzhou.aliyuncs.com/google_containers \
+--kubernetes-version v1.17.3 \
+--service-cidr=10.96.0.0/16 \
+--pod-network-cidr=10.244.0.0/16
+
+kubeadm join 192.168.247.128:6443 --token 6d6eyn.exfsu33xr6l4kl0f \
+    --discovery-token-ca-cert-hash sha256:ee980feffffc43b2078b8bce645d723e29346ad5a0b06708651f9cfb95e33e78
+
+kubectl get pods --all-namespaces
+
+watch kubectl get pod -n kube-system -o wide
+
+kubectl get nodes
+
+kubectl get pods -o wide
+
+kubectl expose deployment tomcat6 --port=80 --target-port=8080 --type=NodePort
+
+kubectl get svc -o wide
+
+kubectl scale --replicas=3 deployment tomcat6
+
+kubectl get all
+
+kubectl delete deployment.apps/tomcat6
+
