@@ -341,6 +341,7 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
             //TODO 6.修改当前spu的状态
             baseMapper.updateSpuStatus(spuId, ProductConstant.StatusEnum.SPU_UP.getCode());
         }else{
+            log.error("远程调用检索服务失败！");
             //远程调用失败
             //TODO 7.重复调用，接口幂等性；重试机制
             /**

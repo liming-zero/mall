@@ -4,6 +4,7 @@ import com.atguigu.gulimall.product.dao.AttrGroupDao;
 import com.atguigu.gulimall.product.dao.SkuSaleAttrValueDao;
 import com.atguigu.gulimall.product.service.CategoryService;
 import com.atguigu.gulimall.product.service.SkuSaleAttrValueService;
+import com.atguigu.gulimall.product.service.SpuInfoService;
 import com.atguigu.gulimall.product.vo.frontvo.SkuItemSaleAttrVo;
 import com.atguigu.gulimall.product.vo.frontvo.SkuItemVo;
 import com.atguigu.gulimall.product.vo.frontvo.SpuBaseAttrVo;
@@ -41,6 +42,13 @@ class GulimallProductApplicationTests {
     private AttrGroupDao attrGroupDao;
     @Autowired
     private SkuSaleAttrValueDao saleAttrValueDao;
+    @Autowired
+    private SpuInfoService spuInfoService;
+
+    @Test
+    public void spuUp(){
+        spuInfoService.spuUp(11L);
+    }
 
     @Test
     public void testAspect(){

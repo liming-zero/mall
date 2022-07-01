@@ -20,8 +20,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
-@Aspect
-@Component
+//@Aspect
+//@Component
 public class LogAspect {
 
     //切点 @FeignClient

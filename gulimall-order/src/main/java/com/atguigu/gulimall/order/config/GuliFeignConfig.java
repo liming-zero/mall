@@ -16,8 +16,15 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import javax.servlet.http.HttpServletRequest;
 import java.util.concurrent.TimeUnit;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
+
 @Configuration
 public class GuliFeignConfig {
+
+    @Bean
+    public Retryer retryer(){
+        return new Retryer.Default(5000, SECONDS.toMillis(5), 5);
+    }
 
     /**
      * 加上Feign远程调用的请求拦截器
