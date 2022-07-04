@@ -17,11 +17,11 @@ public class JacksonEncoder implements Encoder {
     private final ObjectMapper mapper;
 
     public JacksonEncoder() {
-        this((Iterable) Collections.emptyList());
+        this(Collections.emptyList());
     }
 
     public JacksonEncoder(Iterable<Module> modules) {
-        this((new ObjectMapper()).setSerializationInclusion(JsonInclude.Include.NON_NULL).configure(SerializationFeature.INDENT_OUTPUT, true).registerModules(modules));
+        this(new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL).configure(SerializationFeature.INDENT_OUTPUT, true).registerModules(modules));
     }
 
     public JacksonEncoder(ObjectMapper mapper) {
@@ -33,8 +33,8 @@ public class JacksonEncoder implements Encoder {
         try {
             JavaType javaType = this.mapper.getTypeFactory().constructType(bodyType);
             template.body(this.mapper.writerFor(javaType).writeValueAsString(object));
-        } catch (JsonProcessingException var5) {
-            throw new EncodeException(var5.getMessage(), var5);
+        } catch (JsonProcessingException e) {
+            throw new EncodeException(e.getMessage(), e);
         }
     }
 }

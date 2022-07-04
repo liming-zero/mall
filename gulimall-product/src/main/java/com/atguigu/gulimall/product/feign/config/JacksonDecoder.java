@@ -21,7 +21,7 @@ public class JacksonDecoder implements Decoder {
     private final ObjectMapper mapper;
 
     public JacksonDecoder() {
-        this((Iterable) Collections.emptyList());
+        this(Collections.emptyList());
     }
 
     public JacksonDecoder(Iterable<Module> modules) {
@@ -41,23 +41,23 @@ public class JacksonDecoder implements Decoder {
             return null;
         } else {
             Reader reader = response.body().asReader();
-            if (!((Reader)reader).markSupported()) {
+            if (!reader.markSupported()) {
                 reader = new BufferedReader((Reader)reader, 1);
             }
 
             try {
-                ((Reader)reader).mark(1);
-                if (((Reader)reader).read() == -1) {
+                reader.mark(1);
+                if ((reader).read() == -1) {
                     return null;
                 } else {
-                    ((Reader)reader).reset();
-                    return this.mapper.readValue((Reader)reader, this.mapper.constructType(type));
+                    (reader).reset();
+                    return this.mapper.readValue(reader, this.mapper.constructType(type));
                 }
-            } catch (RuntimeJsonMappingException var5) {
-                if (var5.getCause() != null && var5.getCause() instanceof IOException) {
-                    throw (IOException)IOException.class.cast(var5.getCause());
+            } catch (RuntimeJsonMappingException e) {
+                if (e.getCause() != null && e.getCause() instanceof IOException) {
+                    throw IOException.class.cast(e.getCause());
                 } else {
-                    throw var5;
+                    throw e;
                 }
             }
         }
