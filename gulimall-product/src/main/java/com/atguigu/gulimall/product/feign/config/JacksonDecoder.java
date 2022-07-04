@@ -14,6 +14,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 
 public class JacksonDecoder implements Decoder {
@@ -25,7 +26,7 @@ public class JacksonDecoder implements Decoder {
     }
 
     public JacksonDecoder(Iterable<Module> modules) {
-        this((new ObjectMapper()).configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false).registerModules(modules));
+        this(new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false).registerModules(modules));
     }
 
     public JacksonDecoder(ObjectMapper mapper) {
@@ -34,23 +35,23 @@ public class JacksonDecoder implements Decoder {
 
 
     @Override
-    public Object decode(Response response, Type type) throws IOException, DecodeException, FeignException {
+    public Object decode(Response response, Type type) throws IOException {
         if (response.status() == 404) {
             return Util.emptyValueOf(type);
         } else if (response.body() == null) {
             return null;
         } else {
-            Reader reader = response.body().asReader();
+            Reader reader = response.body().asReader(StandardCharsets.UTF_8);
             if (!reader.markSupported()) {
-                reader = new BufferedReader((Reader)reader, 1);
+                reader = new BufferedReader(reader, 1);
             }
 
             try {
                 reader.mark(1);
-                if ((reader).read() == -1) {
+                if (reader.read() == -1) {
                     return null;
                 } else {
-                    (reader).reset();
+                    reader.reset();
                     return this.mapper.readValue(reader, this.mapper.constructType(type));
                 }
             } catch (RuntimeJsonMappingException e) {
