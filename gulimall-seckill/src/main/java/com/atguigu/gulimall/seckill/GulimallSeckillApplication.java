@@ -40,7 +40,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
  *    8）、队列削峰（1万个商品，每个1000件秒杀。双11所有秒杀成功的请求，进入队列。慢慢创建订单，扣减库存即可）
  */
 @EnableRedisHttpSession
-@EnableFeignClients
+//@EnableFeignClients
 @EnableDiscoveryClient
 @SpringBootApplication(exclude = DataSourceAutoConfiguration.class)
 public class GulimallSeckillApplication {
