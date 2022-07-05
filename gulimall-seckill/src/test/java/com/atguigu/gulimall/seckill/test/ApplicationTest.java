@@ -3,7 +3,9 @@ package com.atguigu.gulimall.seckill.test;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.atguigu.common.to.CommonRespUtils;
+import com.atguigu.common.utils.R;
 import com.atguigu.gulimall.seckill.feign.CouponFeignService;
+import com.atguigu.gulimall.seckill.feign.ProductFeignService;
 import com.atguigu.gulimall.seckill.vo.SeckillSessionWithSkusVo;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +18,15 @@ public class ApplicationTest {
 
     @Autowired
     private CouponFeignService couponFeignService;
+
+    @Autowired
+    private ProductFeignService productFeignService;
+
+    @Test
+    public void productService(){
+        R info = productFeignService.getSkuInfo(13L);
+        System.out.println(info);
+    }
 
     @Test
     public void testCoupon(){
