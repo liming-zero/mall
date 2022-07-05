@@ -23,6 +23,13 @@ import org.springframework.session.data.redis.config.annotation.web.http.EnableR
  *    ① @RabbitListener：类 + 方法上（监听哪些队列即可）
  *    ② @RabbitHandler：标注在方法上（重载区分不同的消息）
  *
+ *  RabbitMQ业务逻辑
+ *      1、创建订单-------> 绑定路由键order.create.order ------> 转发到交换机order-event-exchange
+ *      2、交换机order-event-exchange ------> 根据路由键order.create.order ------> 转发到死信队列order.delay.queue
+ *      3、死信队列order.delay.queue设置过期时间30分钟，代表30分钟关单。30分钟后根据路由键order.release.order ------> 路由到交换机order-event-exchange
+ *      4、交换机order-event-exchange根据路由键order.release.order ------> 转发到监听订单关单队列order.release.order.queue
+ *      5、订单服务监听订单关单队列order.release.order.queue进行消费关单。
+ *
  *  本地【事务】失效问题
  *  同一个对象内事务方法互调默认失效，原因：绕过了代理对象，事务是使用代理对象来控制的
  *  解决：使用代理对象来调用事务方法

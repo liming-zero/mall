@@ -231,7 +231,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         /**
          * 1.空结果缓存，解决缓存穿透
          * 2.设置过期时间(加随机值)：解决缓存雪崩
-         * 3.加锁，解决缓存穿透
+         * 3.加锁，解决缓存击穿
          */
         String catalogJSON = redisTemplate.opsForValue().get("catalogJSON");
         //1.如果缓存中没有数据则从数据库中进行查询并放入缓存中(缓存中存的数据是json字符串)
