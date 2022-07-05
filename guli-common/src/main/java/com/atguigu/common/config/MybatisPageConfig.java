@@ -5,6 +5,16 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+/**
+ * AOP原理：
+ *
+ * @EnableTransactionManagement原理
+ * 1）、利用TransactionManagementConfigurationSelector给容器中会导入2个组件
+ *      1.AutoProxyRegistrar
+ *          ①给容器中注册InfrastructureAdvisorAutoProxyCreator组件
+ *      2.ProxyTransactionManagementConfiguration
+ * 2）、AnnotationAwareAspectJAutoProxyCreator
+ */
 @Configuration
 @EnableTransactionManagement    //开启事务
 public class MybatisPageConfig {

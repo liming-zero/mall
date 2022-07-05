@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.util.StringUtils;
 
 import javax.sql.DataSource;
@@ -35,5 +37,14 @@ public class MySeataConfig {
             hikariDataSource.setPoolName(dataSourceProperties.getName());
         }
         return new DataSourceProxy(hikariDataSource);
+    }
+
+    /**
+     * 注册事务管理器在容器中
+     * @return
+     */
+    @Bean
+    public PlatformTransactionManager transactionManager(){
+        return new DataSourceTransactionManager(dataSource(dataSourceProperties));
     }
 }

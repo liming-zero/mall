@@ -10,6 +10,33 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 
 /**
+ * AOP原理：【看给容器中注册了什么组件，这个组件什么时候工作，这个组件工作时候的功能是什么】
+ * 1、@EnableAspectJAutoProxy是什么
+ *    @Import(AspectJAutoProxyRegistrar.class)：给容器中导入AspectJAutoProxyRegistrar组件
+ *    利用AspectJAutoProxyRegistrar自定义给容器中注册bean
+ *    AnnotationAwareAspectJAutoProxyCreator.equals(org.springframework.aop.config.internalAutoProxyCreator)
+ *    给容器中注册一个AnnotationAwareAspectJAutoProxyCreator
+ * 2、AnnotationAwareAspectJAutoProxyCreator
+ *    ①继承关系
+ *    AnnotationAwareAspectJAutoProxyCreator
+ *      -> AspectJAwareAdvisorAutoProxyCreator
+ *          -> AbstractAdvisorAutoProxyCreator
+ *              -> AbstractAutoProxyCreator
+ *                 implements SmartInstantiationAwareBeanPostProcessor, BeanFactoryAware
+ *                 关注后置处理器(在bean初始化完成前后做事情)、自动装配beanFactory
+ *
+ *   AbstractAutoProxyCreator.setBeanFactory()
+ *   AbstractAutoProxyCreator.有后置处理器的逻辑
+ *
+ *   重写
+ *   AbstractAdvisorAutoProxyCreator.setBeanFactory()
+ *   AbstractAdvisorAutoProxyCreator.initBeanFactory()
+ *
+ *   AspectJAwareAdvisorAutoProxyCreator.initBeanFactory()
+ */
+@EnableAspectJAutoProxy(exposeProxy = true)
+
+/**
  * 使用RabbitMQ
  *  1.引入amqp场景启动器
  *    RabbitAutoConfiguration就会自动生效
@@ -58,7 +85,6 @@ import org.springframework.session.data.redis.config.annotation.web.http.EnableR
  *      6.每一个远程的小事务使用@Transactional注解
  *      7.启动测试
  */
-@EnableAspectJAutoProxy(exposeProxy = true)
 @EnableFeignClients
 @EnableRedisHttpSession
 @EnableRabbit

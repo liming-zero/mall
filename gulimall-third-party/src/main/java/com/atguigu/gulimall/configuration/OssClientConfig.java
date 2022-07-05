@@ -1,6 +1,7 @@
 package com.atguigu.gulimall.configuration;
 
 import com.aliyun.oss.OSSClient;
+import com.aliyun.oss.common.auth.DefaultCredentialProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,6 +20,6 @@ public class OssClientConfig {
 
     @Bean
     public OSSClient ossClient(){
-        return new OSSClient(endpoint,accessId,secretAcessKey);
+        return new OSSClient(endpoint, new DefaultCredentialProvider(accessId, secretAcessKey), null);
     }
 }
