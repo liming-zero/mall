@@ -30,8 +30,11 @@ public class ApplicationTest {
 
     @Test
     public void testCoupon(){
+        long start = System.currentTimeMillis();
         CommonRespUtils<List<SeckillSessionWithSkusVo>> utils = couponFeignService.getLatest3DaySession();
         String toJSONString = JSON.toJSONString(utils);
         System.out.println(toJSONString);
+        long end = System.currentTimeMillis();
+        System.out.println("耗时" + (end-start));
     }
 }

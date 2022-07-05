@@ -34,6 +34,7 @@ public class JacksonDecoder implements Decoder {
 
     @Override
     public Object decode(Response response, Type type) throws IOException {
+        long start = System.currentTimeMillis();
         if (response.status() == 404) {
             return Util.emptyValueOf(type);
         } else if (response.body() == null) {
@@ -50,7 +51,10 @@ public class JacksonDecoder implements Decoder {
                     return null;
                 } else {
                     reader.reset();
-                    return this.mapper.readValue(reader, this.mapper.constructType(type));
+                    Object o = this.mapper.readValue(reader, this.mapper.constructType(type));
+                    long end = System.currentTimeMillis();
+                    System.out.println("JacksonDecoder执行耗时:" + (end-start));
+                    return o;
                 }
             } catch (RuntimeJsonMappingException e) {
                 if (e.getCause() != null && e.getCause() instanceof IOException) {

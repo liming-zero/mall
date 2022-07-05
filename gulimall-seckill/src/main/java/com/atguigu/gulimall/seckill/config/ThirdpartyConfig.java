@@ -2,25 +2,17 @@ package com.atguigu.gulimall.seckill.config;
 
 import com.atguigu.gulimall.seckill.feign.CouponFeignService;
 import com.atguigu.gulimall.seckill.feign.config.JacksonDecoder;
-import com.atguigu.gulimall.seckill.feign.config.JacksonEncoder;
+import com.atguigu.gulimall.seckill.feign.config.OptionalDecoder;
 import feign.*;
-import feign.codec.Decoder;
-import feign.codec.Encoder;
-import feign.optionals.OptionalDecoder;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.http.HttpMessageConverters;
-import org.springframework.cloud.openfeign.AnnotatedParameterProcessor;
-import org.springframework.cloud.openfeign.FeignFormatterRegistrar;
 import org.springframework.cloud.openfeign.support.ResponseEntityDecoder;
 import org.springframework.cloud.openfeign.support.SpringDecoder;
 import org.springframework.cloud.openfeign.support.SpringEncoder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @Configuration
@@ -42,6 +34,8 @@ public class ThirdpartyConfig {
                 .retryer(new Retryer.Default(5000,5000,3))
                 .encoder(new SpringEncoder(this.messageConverters))
                 .decoder(new OptionalDecoder(new ResponseEntityDecoder(new SpringDecoder(this.messageConverters))))
+                //.encoder(new JacksonEncoder())
+                //.decoder(new JacksonDecoder())
                 .logLevel(Logger.Level.FULL)
                 .logger(new Logger() {
                     @Override
