@@ -6,7 +6,6 @@ import com.alibaba.csp.sentinel.annotation.SentinelResource;
 import com.alibaba.csp.sentinel.slots.block.BlockException;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
-import com.atguigu.common.to.CommonRespUtils;
 import com.atguigu.common.to.mq.SeckillOrderTo;
 import com.atguigu.common.utils.R;
 import com.atguigu.common.vo.MemberRespVo;
@@ -17,6 +16,7 @@ import com.atguigu.gulimall.seckill.sentinel.GuliBlockExceptionHandler;
 import com.atguigu.gulimall.seckill.service.SeckillService;
 import com.atguigu.gulimall.seckill.to.SecKillSkuRedisTo;
 import com.atguigu.gulimall.seckill.vo.SeckillSessionWithSkusVo;
+import com.atguigu.gulimall.seckill.vo.SeckillSkuRelationVo;
 import com.atguigu.gulimall.seckill.vo.SkuInfoVo;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
@@ -32,6 +32,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -47,7 +48,7 @@ public class SeckillServiceImpl implements SeckillService {
     private CouponFeignService couponFeignService;
     @Autowired
     private StringRedisTemplate redisTemplate;
-    @Autowired(required = false)
+    @Autowired
     private ProductFeignService productFeignService;
     @Autowired
     private RedissonClient redissonClient;
@@ -63,10 +64,11 @@ public class SeckillServiceImpl implements SeckillService {
     @Override
     public void uploadSeckillSkuLatest3Days() {
         //1、扫描最近三天所有需要参与秒杀的活动
-        CommonRespUtils<List<SeckillSessionWithSkusVo>> r = couponFeignService.getLatest3DaySession();
+        R r = couponFeignService.getLatest3DaySession();
         if (r.getCode() == 0) {
             //上架商品
-            List<SeckillSessionWithSkusVo> data = r.getData();
+            List<SeckillSessionWithSkusVo> data = r.getData(new TypeReference<List<SeckillSessionWithSkusVo>>() {
+            });
             //缓存到Redis
             //1、缓存活动信息
             saveSessionInfos(data);

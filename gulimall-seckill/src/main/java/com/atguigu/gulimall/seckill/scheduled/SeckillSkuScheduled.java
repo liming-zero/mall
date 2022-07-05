@@ -30,7 +30,7 @@ public class SeckillSkuScheduled {
 
     //@Scheduled(cron = "0 0 3 * * ?")  每天凌晨3点上架
     //TODO 幂等性处理
-    @Scheduled(cron = "*/3 * * * * ?")  //3秒执行一次
+    //@Scheduled(cron = "*/3 * * * * ?")  //3秒执行一次
     public void uploadSeckillSkuLatest3Days() throws InterruptedException {
         //1、重复上架无需处理
         log.info("上架需要秒杀的商品..........");
@@ -39,8 +39,6 @@ public class SeckillSkuScheduled {
         lock.lock(10, TimeUnit.SECONDS);           //10秒释放锁
         try {
             seckillService.uploadSeckillSkuLatest3Days();
-        } catch (Exception e){
-            log.error("商品上架异常!", e);
         } finally {
             lock.unlock();
         }

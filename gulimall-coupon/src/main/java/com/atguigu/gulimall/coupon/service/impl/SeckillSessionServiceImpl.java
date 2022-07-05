@@ -1,9 +1,7 @@
 package com.atguigu.gulimall.coupon.service.impl;
 
-import com.alibaba.fastjson.JSON;
 import com.atguigu.gulimall.coupon.entity.SeckillSkuRelationEntity;
 import com.atguigu.gulimall.coupon.service.SeckillSkuRelationService;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,7 +26,6 @@ import com.atguigu.gulimall.coupon.entity.SeckillSessionEntity;
 import com.atguigu.gulimall.coupon.service.SeckillSessionService;
 
 
-@Slf4j
 @Service("seckillSessionService")
 public class SeckillSessionServiceImpl extends ServiceImpl<SeckillSessionDao, SeckillSessionEntity> implements SeckillSessionService {
 
@@ -54,7 +51,6 @@ public class SeckillSessionServiceImpl extends ServiceImpl<SeckillSessionDao, Se
             item.setRelationEntities(list);
             return item;
         }).collect(Collectors.toList());
-        log.info("上架最近3天商品,出参:{}", JSON.toJSONString(collect));
         return collect;
     }
 
