@@ -204,10 +204,10 @@ import org.springframework.session.data.redis.config.annotation.web.http.EnableR
 @SpringBootApplication
 public class GulimallOrderApplication {
     public static void main(String[] args) {
-        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(MainConfigOfAop.class);
-        MathCalculator bean = context.getBean(MathCalculator.class);
-        bean.div(10, 2);
-        //SpringApplication.run(GulimallOrderApplication.class, args);
+        //AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(MainConfigOfAop.class);
+        //MathCalculator bean = context.getBean(MathCalculator.class);
+        //bean.div(10, 2);
+        SpringApplication.run(GulimallOrderApplication.class, args);
     }
 
 }
