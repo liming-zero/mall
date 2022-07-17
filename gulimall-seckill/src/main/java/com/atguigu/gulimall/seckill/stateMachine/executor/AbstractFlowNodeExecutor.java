@@ -20,7 +20,7 @@ public abstract class AbstractFlowNodeExecutor implements FlowNodeExecutor {
     private FlowNodeExecutorFactory flowNodeExecutorFactory;
 
     @Override
-    public void execute(FlowNode flowNode, ContextBO contextBO) {
+    public final void execute(FlowNode flowNode, ContextBO contextBO) {
         log.info("业务编号:{},流程节点:{},开始执行", contextBO.getBizId(), flowNode.getCurrentCode().getFlowName());
         before(flowNode, contextBO);
         BizStatusEnum bizStatusEnum;
@@ -47,7 +47,7 @@ public abstract class AbstractFlowNodeExecutor implements FlowNodeExecutor {
      * @param contextBO
      */
     @Override
-    public void before(FlowNode flowNode, ContextBO contextBO) {
+    public final void before(FlowNode flowNode, ContextBO contextBO) {
         log.info("记录流程节点开始状态");
         Assert.notNull(contextBO.getBizId(), "业务编号不能为空");
         Assert.notNull(contextBO.getProductCode(), "产品编号不能为空");
@@ -76,8 +76,11 @@ public abstract class AbstractFlowNodeExecutor implements FlowNodeExecutor {
                 }
             }
 
+            this.before();
         }
     }
+
+    public void before(){}
 
     @Override
     public void retry(FlowNode flowNode, ContextBO contextBO, String errMsg, String flowStatusCode) {
@@ -90,7 +93,7 @@ public abstract class AbstractFlowNodeExecutor implements FlowNodeExecutor {
     }
 
     @Override
-    public void after(BizStatusEnum bizStatusEnum, FlowNode flowNode, ContextBO contextBO) {
+    public final void after(BizStatusEnum bizStatusEnum, FlowNode flowNode, ContextBO contextBO) {
         //1、异常场景，直接返回
         if (bizStatusEnum == null){
             return;
