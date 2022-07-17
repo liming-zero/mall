@@ -4,12 +4,12 @@ import com.atguigu.gulimall.seckill.stateMachine.business.enums.BizTypeEnum;
 import com.atguigu.gulimall.seckill.stateMachine.business.enums.CreditFlowEnum;
 import com.atguigu.gulimall.seckill.stateMachine.business.enums.CreditFlowStatusEnum;
 import com.atguigu.gulimall.seckill.stateMachine.business.enums.ProductEnum;
-import com.atguigu.gulimall.seckill.stateMachine.manager.impl.IFlowNodeManagerImpl;
+import com.atguigu.gulimall.seckill.stateMachine.manager.impl.IFlowNodeManagerAdapter;
 import com.atguigu.gulimall.seckill.stateMachine.node.FlowNode;
 import org.springframework.stereotype.Component;
 
 @Component
-public class GuliFlowNodeManagerImpl extends IFlowNodeManagerImpl {
+public class GuliFlowNodeManagerImpl extends IFlowNodeManagerAdapter {
 
     @Override
     public void afterPropertiesSet(){

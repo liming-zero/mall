@@ -69,7 +69,7 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 @EnableCaching
 @EnableFeignClients(basePackages = {"com.atguigu.gulimall.product.feign"})
 @ComponentScan("com.atguigu")
-@EnableDiscoveryClient
+//@EnableDiscoveryClient
 @MapperScan("com.atguigu.gulimall.product.dao")
 @EnableAspectJAutoProxy //开启基于注解得aop模式
 @SpringBootApplication
