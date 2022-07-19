@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
-public abstract class IFlowNodeManagerImpl implements IFlowNodeManager, InitializingBean {
+public abstract class IFlowNodeManagerAdapter implements IFlowNodeManager, InitializingBean {
 
     /**
      * 可售产品节点链表

@@ -13,6 +13,11 @@ public abstract class AbstractGuliExecutor extends AbstractFlowNodeExecutor {
     @Autowired
     private FlowNodeManagerFactory flowNodeManagerFactory;
 
+    @Override
+    public void before() {
+        super.before();
+    }
+
     /**
      * 更新业务表状态
      * @param contextBO
