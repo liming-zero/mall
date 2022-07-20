@@ -1,9 +1,10 @@
 package com.atguigu.gulimall.seckill.config;
 
 import com.atguigu.gulimall.seckill.feign.CouponFeignService;
-import com.atguigu.gulimall.seckill.feign.config.JacksonDecoder;
 import com.atguigu.gulimall.seckill.feign.config.OptionalDecoder;
+import com.atguigu.gulimall.seckill.stateMachine.mock.MockSwitchConfig;
 import feign.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.http.HttpMessageConverters;
@@ -15,12 +16,16 @@ import org.springframework.context.annotation.Configuration;
 
 import java.util.concurrent.TimeUnit;
 
+@Slf4j
 @Configuration
 public class ThirdpartyConfig {
 
     //获取Spring容器中所有的http信息转换器
     @Autowired
     private ObjectFactory<HttpMessageConverters> messageConverters;
+
+    @Autowired
+    private MockSwitchConfig mockSwitchConfig;
 
     @Bean
     Logger.Level feignLoggerLevel() {
@@ -72,6 +77,15 @@ public class ThirdpartyConfig {
                     @Override
                     public Request apply(RequestTemplate template) {
                         if (template.url().indexOf("http") != 0) {
+                            template.target(url());
+                        }
+                        //动态判断是否需要mock
+                        String suffixUrl = template.url();
+                        if (mockSwitchConfig != null && mockSwitchConfig.getMockCouponService().contains(suffixUrl)) {
+                            //命中mock策略
+                            log.info("调用mock优惠服务接口");
+                            template.target(mockSwitchConfig.getMockCouponService());
+                        }else {
                             template.target(url());
                         }
                         return template.request();

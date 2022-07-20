@@ -27,6 +27,9 @@ public class MockSwitchConfig {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
+    @Value("${mock.coupon}")
+    private String mockCouponService;
+
     @Value("#{mock.switch}")
     private boolean mockSwitch;
 
@@ -43,6 +46,14 @@ public class MockSwitchConfig {
 
     public boolean isMockSwitch() {
         return mockTdSwitch;
+    }
+
+    public String getMockCouponService() {
+        return mockCouponService;
+    }
+
+    public void setMockCouponService(String mockCouponService) {
+        this.mockCouponService = mockCouponService;
     }
 
     public void process(String flowNode, Map<String, Object> contextBO, String bizId, String pdId) {
