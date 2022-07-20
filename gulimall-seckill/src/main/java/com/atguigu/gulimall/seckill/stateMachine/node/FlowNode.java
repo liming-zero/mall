@@ -11,48 +11,48 @@ public class FlowNode<K extends IFlowNodeEnum, V extends IFlowNodeStatus> implem
     /**
      * 当前事件
      */
-    private K currentCode;
+    private final K currentCode;
 
     /**
      * 节点初始状态
      */
-    private V initStatusCode;
+    private final V initStatusCode;
 
     /**
      * 节点执行失败状态
      */
-    private V failedStatusCode;
+    private final V failedStatusCode;
 
     /**
      * 节点执行成功状态
      */
-    private V successStatusCode;
+    private final V successStatusCode;
 
     /**
      * 处理中状态
      */
-    private V processStatusCode;
+    private final V processStatusCode;
 
     /**
      * 流程执行器后置处理拿到该节点是否自动执行
      * true 自动执行
      * false 外部接口或者消息接收后主动执行节点流程
      */
-    private boolean autoExecuteFlag;
+    private final boolean autoExecuteFlag;
 
     /**
      * 失败是否重视标识
      * true 需要重试
      * false 不需要重试
      */
-    private boolean failRetryFlag;
+    private final boolean failRetryFlag;
 
     /**
      * 处理中是否需要重试标识
      * true 需要
      * false 不需要
      */
-    private boolean processRetryFlag;
+    private final boolean processRetryFlag;
 
     /**
      * 根据业务执行结果获取当前状态

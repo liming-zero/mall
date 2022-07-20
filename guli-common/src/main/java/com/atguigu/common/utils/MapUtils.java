@@ -74,7 +74,7 @@ public class MapUtils {
                     return new BigDecimal((Integer) answer);
                 } else if (answer instanceof Long) {
                     return new BigDecimal((Long) answer);
-                } else{
+                } else {
                     throw new NumberFormatException("BigDecimal cast exception!" + answer.getClass().getName() + " nonsupport");
                 }
             }
