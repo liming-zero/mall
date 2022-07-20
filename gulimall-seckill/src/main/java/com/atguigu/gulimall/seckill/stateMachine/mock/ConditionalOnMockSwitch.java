@@ -11,7 +11,7 @@ import java.util.List;
 
 public class ConditionalOnMockSwitch extends SpringBootCondition {
 
-    private List<String> mockProfiles = Arrays.asList("dev");
+    private List<String> mockProfiles = Arrays.asList("dev", "sit", "uat");
 
     @Override
     public ConditionOutcome getMatchOutcome(ConditionContext context, AnnotatedTypeMetadata metadata) {
@@ -28,6 +28,6 @@ public class ConditionalOnMockSwitch extends SpringBootCondition {
                 }
             }
         }
-        return ConditionOutcome.noMatch("不匹配");
+        return ConditionOutcome.noMatch("环境不匹配!");
     }
 }
