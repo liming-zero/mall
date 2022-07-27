@@ -1,5 +1,6 @@
 package com.atguigu.gulimall.product.app;
 
+import com.atguigu.common.annotation.SysLog;
 import com.atguigu.common.utils.PageUtils;
 import com.atguigu.common.utils.R;
 import com.atguigu.gulimall.product.entity.SpuInfoEntity;
@@ -90,6 +91,7 @@ public class SpuInfoController {
     /**
      * 删除
      */
+    @SysLog("删除spu详情描述")
     @RequestMapping("/delete")
     //@RequiresPermissions("product:spuinfo:delete")
     public R delete(@RequestBody Long[] ids){

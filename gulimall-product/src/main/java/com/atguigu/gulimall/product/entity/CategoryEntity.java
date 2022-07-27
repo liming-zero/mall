@@ -26,7 +26,7 @@ public class CategoryEntity implements Serializable {
 	 * 当前菜单的所有子分类
 	 */
 	@TableField(exist = false)
-	@JsonInclude(JsonInclude.Include.NON_EMPTY)
+	@JsonInclude(JsonInclude.Include.NON_EMPTY)	//如果加该注解的字段为null,那么就不序列化这个字段了。
 	private List<CategoryEntity> children;
 
 	/**

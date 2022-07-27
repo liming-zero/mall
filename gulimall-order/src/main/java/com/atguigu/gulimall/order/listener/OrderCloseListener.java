@@ -1,5 +1,6 @@
 package com.atguigu.gulimall.order.listener;
 
+import com.atguigu.common.annotation.SysLog;
 import com.atguigu.gulimall.order.config.AlipayTemplate;
 import com.atguigu.gulimall.order.constant.OrderRabbitConstant;
 import com.atguigu.gulimall.order.entity.OrderEntity;
@@ -26,6 +27,7 @@ public class OrderCloseListener {
     /**
      * 监听消息
      */
+    @SysLog("监听过期的订单信息")
     @RabbitHandler
     public void listener(OrderEntity order, Channel channel, Message message) throws IOException {
         System.out.println("收到过期的订单信息，准备关闭订单" + order.getOrderSn());

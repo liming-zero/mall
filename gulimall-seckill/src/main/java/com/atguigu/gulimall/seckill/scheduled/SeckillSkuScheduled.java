@@ -28,7 +28,7 @@ public class SeckillSkuScheduled {
 
     private final String upload_lock = "seckill:upload:lock";
 
-    //@Scheduled(cron = "0 0 3 * * ?")  每天凌晨3点上架
+    //@Scheduled(cron = "0 0 3 * * ?")  //每天凌晨3点上架
     //TODO 幂等性处理
     @Scheduled(cron = "*/3 * * * * ?")  //3秒执行一次
     public void uploadSeckillSkuLatest3Days() throws InterruptedException {

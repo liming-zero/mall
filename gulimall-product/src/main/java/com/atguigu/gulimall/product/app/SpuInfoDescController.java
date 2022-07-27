@@ -1,5 +1,6 @@
 package com.atguigu.gulimall.product.app;
 
+import com.atguigu.common.annotation.SysLog;
 import com.atguigu.common.utils.PageUtils;
 import com.atguigu.common.utils.R;
 import com.atguigu.gulimall.product.entity.SpuInfoDescEntity;
@@ -75,6 +76,7 @@ public class SpuInfoDescController {
      */
     @RequestMapping("/delete")
     //@RequiresPermissions("product:spuinfodesc:delete")
+    @SysLog("删除spu详情描述")
     public R delete(@RequestBody Long[] spuIds){
 		spuInfoDescService.removeByIds(Arrays.asList(spuIds));
 

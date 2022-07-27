@@ -91,9 +91,10 @@ public class SeckillServiceImpl implements SeckillService {
     }
 
     private void saveSessionSkuInfos(List<SeckillSessionWithSkusVo> vos) {
+        //准备hash操作
+        BoundHashOperations<String, Object, Object> hashOps = redisTemplate.boundHashOps(SKUKILL_CACHE_PREFIX);
+
         for (SeckillSessionWithSkusVo session : vos) {
-            //准备hash操作
-            BoundHashOperations<String, Object, Object> hashOps = redisTemplate.boundHashOps(SKUKILL_CACHE_PREFIX);
             session.getRelationEntities().stream().forEach(seckillSkuVo -> {
                 String uuid = IdWorker.get32UUID();
                 //缓存商品信息
@@ -224,7 +225,7 @@ public class SeckillServiceImpl implements SeckillService {
         long ttl = endTime - currentTime;
         if (currentTime >= startTime && currentTime <= endTime) {
             //3、效验随机码和商品id
-            String randomCode = redis.getRandomCode();
+            String randomCode = redis.getRan9domCode();
             String sku = redis.getPromotionSessionId() + "_" + redis.getSkuId();
             if (randomCode.equals(key) && sku.equals(skillId)) {
                 //4、验证购物数量是否合理

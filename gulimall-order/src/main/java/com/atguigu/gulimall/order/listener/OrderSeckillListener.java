@@ -1,5 +1,6 @@
 package com.atguigu.gulimall.order.listener;
 
+import com.atguigu.common.annotation.SysLog;
 import com.atguigu.common.to.mq.SeckillOrderTo;
 import com.atguigu.gulimall.order.constant.OrderRabbitConstant;
 import com.atguigu.gulimall.order.service.OrderService;
@@ -24,6 +25,7 @@ public class OrderSeckillListener {
     /**
      * 监听消息
      */
+    @SysLog("监听创建秒杀订单的消息")
     @RabbitHandler
     public void listener(SeckillOrderTo seckillOrder, Channel channel, Message message) throws IOException {
         log.info("准备创建秒杀单的详细信息......");

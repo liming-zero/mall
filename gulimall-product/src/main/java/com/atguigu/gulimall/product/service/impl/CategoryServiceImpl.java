@@ -56,9 +56,9 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
 
         //2.组装成父子的树形结构
         List<CategoryEntity> level1Menus = categoryAllList.stream().filter(categoryEntity -> categoryEntity.getParentCid() == 0)
-                .map((menu) -> {
-                    menu.setChildren(getChildrenList(menu, categoryAllList));
-                    return menu;
+                .map(category1 -> {
+                    category1.setChildren(getChildrenList(category1, categoryAllList));
+                    return category1;
                 }).sorted((menu1, menu2) -> {
                     return (menu1.getSort() == null ? 0 : menu1.getSort()) - (menu2.getSort() == null ? 0 : menu2.getSort());
                 }).collect(Collectors.toList());
@@ -208,12 +208,12 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
             //2.封装上面的结果
             List<Catalog2Vo> catelog2Vos = null;
             if (categoryLevel2List != null) {
-                catelog2Vos = categoryLevel2List.stream().map((level2) -> {
+                catelog2Vos = categoryLevel2List.stream().map(level2 -> {
                     Catalog2Vo catelog2Vo = new Catalog2Vo(v.getCatId().toString(), null, level2.getCatId().toString(), level2.getName());
                     //1.找当前二级分类的三级分类封装成vo
                     List<CategoryEntity> categoryLevel3List = getParent_cid(selectList, level2.getCatId());
                     if (categoryLevel3List != null) {
-                        List<Catalog2Vo.Catalog3VO> catalog3VOS = categoryLevel3List.stream().map((level3) -> {
+                        List<Catalog2Vo.Catalog3VO> catalog3VOS = categoryLevel3List.stream().map(level3 -> {
                             Catalog2Vo.Catalog3VO catalog3VO = new Catalog2Vo.Catalog3VO(level2.getCatId().toString(), level3.getCatId().toString(), level3.getName());
                             return catalog3VO;
                         }).collect(Collectors.toList());

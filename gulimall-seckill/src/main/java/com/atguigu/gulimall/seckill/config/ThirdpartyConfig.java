@@ -2,8 +2,9 @@ package com.atguigu.gulimall.seckill.config;
 
 import com.atguigu.gulimall.seckill.feign.CouponFeignService;
 import com.atguigu.gulimall.seckill.feign.config.JacksonDecoder;
-import com.atguigu.gulimall.seckill.feign.config.OptionalDecoder;
+import com.atguigu.gulimall.seckill.feign.config.JacksonEncoder;
 import feign.*;
+import feign.optionals.OptionalDecoder;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.http.HttpMessageConverters;
@@ -32,10 +33,10 @@ public class ThirdpartyConfig {
     public CouponFeignService couponFeignService(){
         return Feign.builder()
                 .retryer(new Retryer.Default(5000,5000,3))
-                .encoder(new SpringEncoder(this.messageConverters))
-                .decoder(new OptionalDecoder(new ResponseEntityDecoder(new SpringDecoder(this.messageConverters))))
-                //.encoder(new JacksonEncoder())
-                //.decoder(new JacksonDecoder())
+                //.encoder(new SpringEncoder(this.messageConverters))
+                //.decoder(new OptionalDecoder(new ResponseEntityDecoder(new SpringDecoder(this.messageConverters))))
+                .encoder(new JacksonEncoder())
+                .decoder(new JacksonDecoder())
                 .logLevel(Logger.Level.FULL)
                 .logger(new Logger() {
                     @Override
