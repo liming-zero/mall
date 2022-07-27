@@ -20,7 +20,7 @@ import org.springframework.session.data.redis.config.annotation.web.http.EnableR
  *    利用AspectJAutoProxyRegistrar自定义给容器中注册bean；BeanDefinetion
  *    AnnotationAwareAspectJAutoProxyCreator.equals(org.springframework.aop.config.internalAutoProxyCreator)
  *    给容器中注册一个AnnotationAwareAspectJAutoProxyCreator
- * 2、AnnotationAwareAspectJAutoProxyCreator
+ * 2、AnnotationAwareAspectJAut oProxyCreator
  *    ①继承关系
  *    AnnotationAwareAspectJAutoProxyCreator
  *      -> AspectJAwareAdvisorAutoProxyCreator
