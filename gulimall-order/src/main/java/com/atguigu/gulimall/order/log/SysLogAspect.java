@@ -76,9 +76,9 @@ public class SysLogAspect {
 		}
 
 		//获取request
-		HttpServletRequest request = HttpContextUtils.getHttpServletRequest();
+		//HttpServletRequest request = HttpContextUtils.getHttpServletRequest();
 		//设置IP地址
-		sysLog.setIp(IPUtils.getIpAddr(request));
+		//sysLog.setIp(IPUtils.getIpAddr(request));
 
 		//用户名
 		sysLog.setUsername("订单服务");

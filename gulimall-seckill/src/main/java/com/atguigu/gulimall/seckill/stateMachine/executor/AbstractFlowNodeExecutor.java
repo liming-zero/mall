@@ -104,21 +104,21 @@ public abstract class AbstractFlowNodeExecutor implements FlowNodeExecutor {
         updateBizStatus(contextBO, nodeStatus);
 
         //3、失败重试场景
-        if (bizStatusEnum.FAIL.equals(bizStatusEnum) && flowNode.isFailRetryFlag()){
+        if (BizStatusEnum.FAIL.equals(bizStatusEnum) && flowNode.isFailRetryFlag()){
             log.info("业务编号{},流程节点{},失败开始补偿登记", contextBO.getBizId(), flowNode.getCurrentCode().getFlowName());
             this.retry(flowNode, contextBO, bizStatusEnum.getCode(), nodeStatus.getFlowStatusCode());
             return;
         }
 
         //3、处理中重试场景
-        if (bizStatusEnum.PROCESS.equals(bizStatusEnum) && flowNode.isProcessRetryFlag()){
+        if (BizStatusEnum.PROCESS.equals(bizStatusEnum) && flowNode.isProcessRetryFlag()){
             log.info("业务编号{},流程节点{},处理中开始补偿登记", contextBO.getBizId(), flowNode.getCurrentCode().getFlowName());
             this.retry(flowNode, contextBO, bizStatusEnum.getCode(), nodeStatus.getFlowStatusCode());
             return;
         }
 
         //4、未成功重试场景
-        if (!bizStatusEnum.SUCCESS.equals(bizStatusEnum)){
+        if (!BizStatusEnum.SUCCESS.equals(bizStatusEnum)){
             log.info("业务编号{},流程节点{},未成功开始补偿登记", contextBO.getBizId(), flowNode.getCurrentCode().getFlowName());
             this.retry(flowNode, contextBO, bizStatusEnum.getCode(), nodeStatus.getFlowStatusCode());
             return;

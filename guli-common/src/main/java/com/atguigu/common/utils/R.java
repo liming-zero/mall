@@ -32,16 +32,14 @@ public class R extends HashMap<String, Object> {
 	public <T> T getData(String key,TypeReference<T> typeReference){
 		Object data = get(key);	//默认是map
 		String s = JSON.toJSONString(data);
-		T t = JSON.parseObject(s, typeReference);
-		return t;
+		return JSON.parseObject(s, typeReference);
 	}
 
-	//利用fastjson进行逆转回原对象
+	//利用fastjson进行逆转回原对象@
 	public <T> T getData(TypeReference<T> typeReference){
 		Object data = get("data");	//默认是map
 		String s = JSON.toJSONString(data);
-		T t = JSON.parseObject(s, typeReference);
-		return t;
+		return JSON.parseObject(s, typeReference);
 	}
 
 	public R() {
@@ -84,6 +82,7 @@ public class R extends HashMap<String, Object> {
 		return (Integer) this.get("code");
 	}
 
+	@Override
 	public R put(String key, Object value) {
 		super.put(key, value);
 		return this;

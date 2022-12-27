@@ -32,6 +32,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -152,6 +153,7 @@ public class SeckillServiceImpl implements SeckillService {
         long currentTime = new Date().getTime();
 
         //2、获取这个秒杀场次需要的所有商品信息
+        List<SecKillSkuRedisTo> result = new ArrayList<>();
         try(Entry entry = SphU.entry("seckillSkus")){
             Set<String> keys = redisTemplate.keys(SESSION_CACHE_PREFIX + "*");
             for (String key : keys) {
@@ -172,14 +174,14 @@ public class SeckillServiceImpl implements SeckillService {
                             //redis.setRandomCode(null);    当前秒杀开始需要随机码
                             return redis;
                         }).collect(Collectors.toList());
-                        return collect;
+                        result.addAll(collect);
                     }
                 }
             }
+            return result;
         } catch (BlockException e){
             log.error("getCurrentSeckillSkus方法限流......{}", e.getMessage());
         }
-
         return null;
     }
 
@@ -225,7 +227,7 @@ public class SeckillServiceImpl implements SeckillService {
         long ttl = endTime - currentTime;
         if (currentTime >= startTime && currentTime <= endTime) {
             //3、效验随机码和商品id
-            String randomCode = redis.getRan9domCode();
+            String randomCode = redis.getRandomCode();
             String sku = redis.getPromotionSessionId() + "_" + redis.getSkuId();
             if (randomCode.equals(key) && sku.equals(skillId)) {
                 //4、验证购物数量是否合理
