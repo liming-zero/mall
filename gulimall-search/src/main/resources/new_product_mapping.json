@@ -1,5 +1,5 @@
 #修改映射需要迁移数据
-#PUT gulimall_product
+PUT gulimall_product
 {
   "mappings": {
     "properties": {
