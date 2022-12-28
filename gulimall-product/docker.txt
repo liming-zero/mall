@@ -46,3 +46,12 @@ docker run -d --restart always --name zipkin -p 9411:9411 openzipkin/zipkin
 192.168.247.130		order.gulimall.com
 192.168.247.130		member.gulimall.com
 192.168.247.130		seckill.gulimall.com
+
+docker cp 9a03f2118009:seata-server/resources /mydata/seata/
+
+docker cp /mydata/seata/resources/registry.conf 9a03f2118009:seata-server/resources/registry.conf
+
+docker cp /mydata/seata/resources/file.conf 9a03f2118009:seata-server/resources/file.conf
+
+sh /mydata/seata/resources/nacos-config.sh -h 119.3.151.37 -p 8848 -g SEATA_GROUP -t 244e55be-3e0b-48c1-b1ee-83722ed52b8f -u nacos -w nacos
+

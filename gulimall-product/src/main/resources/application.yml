@@ -80,8 +80,27 @@ alibaba:
 
 #解决json序列化的问题
 seata:
+  tx-service-group: gulimall-product-group
   client:
     undo:
       log-serialization: kryo
+  registry:
+    type: nacos
+    nacos:
+      server-addr: 119.3.151.37:8848
+      username: nacos
+      password: nacos
+      namespace: 244e55be-3e0b-48c1-b1ee-83722ed52b8f
+  config:
+    type: nacos
+    nacos:
+      server-addr: 119.3.151.37:8848
+      username: nacos
+      password: nacos
+      namespace: 244e55be-3e0b-48c1-b1ee-83722ed52b8f
+  service:
+    vgroup-mapping:
+      gulimall-product-group: default
+
 
 
