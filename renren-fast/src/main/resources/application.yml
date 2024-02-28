@@ -2,12 +2,14 @@
 server:
   tomcat:
     uri-encoding: UTF-8
-    max-threads: 1000
-    min-spare-threads: 30
+    threads:
+      max: 1000
+      min-spare: 30
   port: 8080
-  connection-timeout: 5000ms
   servlet:
     context-path: /renren-fast
+  netty:
+    connection-timeout: 5000ms
 
 spring:
   # 环境 dev|test|prod
@@ -43,7 +45,7 @@ spring:
   cloud:
     nacos:
       discovery:
-        server-addr: 119.3.151.37:8848
+        server-addr: localhost:8848
         #server-addr: 192.168.247.130:8848
 #  resources:
 #    add-mappings: false

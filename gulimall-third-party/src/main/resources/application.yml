@@ -2,7 +2,7 @@ spring:
   cloud:
     nacos:
       discovery:
-        server-addr: 119.3.151.37:8848
+        server-addr: localhost:8848
 
     alibaba:
       seata:
@@ -18,7 +18,7 @@ spring:
 
   #服务追踪
   zipkin:
-    base-url: http://119.3.151.37:9411/
+    base-url: http://localhost:9411/
     #关闭服务发现，否则springCloud会把zipkin的url当作服务名称
     discovery-client-enabled: false
     #指定以http的方式汇报数据
@@ -37,3 +37,16 @@ seata:
   client:
     undo:
       log-serialization: kryo
+
+#management.endpoint.health.show-details=always，health endpoint开启显示全部细节。默认情况下/actuator/health是公开的，但不显示细节。
+#management.endpoints.web.base-path=/monitor，启用指定的url地址访问根路径，默认路径为/actuator/*，开启则访问路径变为/monitor/*。
+#management.endpoint.shutdown.enabled=true，启用接口关闭SpringBoot。
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+
+feign:
+  sentinel:
+    enabled: true

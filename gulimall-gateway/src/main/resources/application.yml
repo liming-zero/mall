@@ -1,3 +1,4 @@
+
 spring:
   cloud:
     gateway:
@@ -88,5 +89,32 @@ spring:
           uri: lb://gulimall-seckill
           predicates:
             - Host=seckill.gulimall.com
+    nacos:
+      server-addr: localhost
+
+    sentinel:
+      enabled: true
+      transport:
+        port: 8719
+        dashboard: localhost:8333
+
+  application:
+    name: gulimall-gateway
+
+  zipkin:
+    base-url: http://localhost:9411/
+    discovery-client-enabled: false
+    sender:
+      type: web
+
+  sleuth:
+    sampler:
+      probability: 1
+
 #前端项目，/api
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
 #http://localhost:88/api/captcha.jpg  http://localhost:8080/renren-fast/captcha.jpg

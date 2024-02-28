@@ -33,11 +33,9 @@ public class CouponController {
     @Autowired
     private CouponService couponService;
 
-    @Value("${coupon.user.name}")
-    private String name;
+    private String name = "zhangsan";
 
-    @Value("${coupon.user.age}")
-    private Integer age;
+    private Integer age = 28;
 
     @RequestMapping("test")
     public R test(){
